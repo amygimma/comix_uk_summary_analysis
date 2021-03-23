@@ -21,10 +21,24 @@ pdt <- qs::qread('data/dt_2w.qs')
 p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 
+# Add attitude likert bins
+map_likert2 <- c("Strongly agree" = "Agree",
+                 "Tend to agree" = "Agree",
+                 "Neither agree nor disagree" = "Neutral",
+                 "Tend to disagree" = "Disagree", 
+                 "Strongly disagree" = "Disagree"
+)
+
+pdt[, part_att_spread_bin := map_likert2[part_att_spread]]
+pdt[, part_att_likely_bin := map_likert2[part_att_likely]]
+pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
+# pdt[, part_high_risk_bin := map_hr[part_high_risk]]
+
+
 # Define boots ------------------------------------------------------------
 
-boots <- 10
-#boots <- 1000
+# boots <- 5
+boots <- 1000
 dt_boot <- data.table()
 
 
@@ -90,10 +104,24 @@ for(i in unique(pdt$part_social_group)){
   dt_boot <- rbind(dt_boot, dt1, dt2)
 }
 
-# Get for socioeconomic status ---------------------------------------------
-for(i in c("yes", "no")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, risk_group_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, risk_group_ = i, age_ = "All")
+# Get for att_spread status ---------------------------------------------
+for(i in c("Agree", "Disagree", "Neutral")){
+  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i,  age_ = "All-adults")
+  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i, age_ = "All")
+  dt_boot <- rbind(dt_boot, dt1, dt2)
+}
+
+# Get for att_likely status ---------------------------------------------
+for(i in c("Agree", "Disagree", "Neutral")){
+  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i,  age_ = "All-adults")
+  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i, age_ = "All")
+  dt_boot <- rbind(dt_boot, dt1, dt2)
+}
+
+# Get for att_serious status ---------------------------------------------
+for(i in c("Agree", "Disagree", "Neutral")){
+  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = "All-adults")
+  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i, age_ = "All")
   dt_boot <- rbind(dt_boot, dt1, dt2)
 }
 
@@ -108,15 +136,28 @@ mea_vars <- c("All", "Home", "Work/Educ", "Other",
   "Bar restaurant")
 
 
-l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_social_group", "part_high_risk", "start_date", "mid_date", "end_date", "survey_round", "n"), measure.vars = mea_vars, variable.name = "setting", value  = "avg")
+l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_social_group", 
+                                  "part_high_risk", "start_date", "part_att_spread_bin", 
+                                  "part_att_likely_bin", "part_att_serious_bin",
+                                  "mid_date", "end_date", "survey_round", "n"), 
+             measure.vars = mea_vars, variable.name = "setting", value  = "avg")
 
-dts <- l_dt[, .(lci = quantile(avg, 0.025, na.rm = T),  mean = mean(avg, na.rm = T), uci = quantile(avg, 0.975, na.rm = T), boots = .N),
-            by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date, setting, n)]
+dts <- l_dt[, .(
+  lci = quantile(avg, 0.025, na.rm = T),  
+  mean = mean(avg, na.rm = T), 
+  uci = quantile(avg, 0.975, na.rm = T), 
+  boots = .N),
+  by = .(part_age_group, part_region, part_gender, part_social_group, 
+         part_high_risk, part_att_spread_bin, 
+         part_att_likely_bin, part_att_serious_bin,
+         start_date, mid_date, end_date, setting, n)]
 
 
 
 # Save data ---------------------------------------------------------------
-qs::qsave(dts, "data/2021-03-05_bs_means_2w.qs")
-
+sys_date <- Sys.Date()
+file_path <- file.path("data", paste(sys_date, boots, "bs_means_2w.qs", sep = "_"))
+qs::qsave(dts, file_path)
+message(paste("saved to:", file_path))
 
 

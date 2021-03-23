@@ -14,7 +14,9 @@ library(patchwork)
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
 
 # Load participant data ---------------------------------------------------
-dt <- qs::qread('data/2021-03-05_bs_means_2w.qs')
+file_path <- file.path("data", paste(sys_date, "bs_means_2w.qs", sep = "_"))
+dt <- qs::qread(file_path)
+message(paste("read from:", file_path))
 
 nrow(dt)
 dt <- dt[part_age_group %in% c("0-4", "5-17", "18-59", "60+")]
@@ -47,6 +49,7 @@ dt[, part_social_group_lab := factor(part_social_group,
                                      labels = c("All", "A", "B", "C1", "C2", "D", "E"))]
 
 
+table(dt$part_att_serious_bin)
 
 # Set plot parameters -----------------------------------------------------
 expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
@@ -447,6 +450,8 @@ fig1
 
 qs::qsave(fig1, "outputs/fig1.qs")
 ggsave(fig1, filename = "outputs/fig1.png", height = 16, width = 17, dpi = 300)
+
+
 
 
 

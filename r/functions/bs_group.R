@@ -1,11 +1,15 @@
 
 
 bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult", 
-                         area_ = "All", age_ = "All", 
-                         gender_ = "All", 
-                         soc_group_ = "All",
-                        risk_group_ = "All"
-                     ) {
+                     area_ = "All", 
+                     age_ = "All", 
+                     gender_ = "All", 
+                     soc_group_ = "All",
+                     risk_group_ = "All",
+                     att_spread_bin_ = "All",
+                     att_likely_bin_ = "All",
+                     att_serious_bin_ = "All"
+) {
 
   # subset by region --------------------------------------------------------
   regionname <- area_
@@ -54,16 +58,42 @@ bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult",
     )
   } 
 
+  # Subset by risk group --------------------------------------------------
+  
   riskgroupname <- risk_group_
   if(risk_group_ == "All"){
     risk_group_ <- c(NA, "yes", "no", 
                     "no_answer"
     )
   } 
-
   
-  dt <- dt[area %in% area_ & part_age_group %in% age_ & part_gender %in% gender_ &
-           part_social_group %in% soc_group_ & part_high_risk %in% risk_group_]
+  # Subset by att_spread group --------------------------------------------------
+  attspreadname <- att_spread_bin_
+  if(att_spread_bin_ == "All"){
+    att_spread_bin_ <- c(NA, "Agree", "Disagree", "Neutral")
+  } 
+
+  # Subset by att_likely group --------------------------------------------------
+  attlikelyname <- att_likely_bin_
+  if(att_likely_bin_ == "All"){
+    att_likely_bin_ <- c(NA, "Agree", "Disagree", "Neutral")
+  } 
+  
+  # Subset by att_serious group --------------------------------------------------
+  attseriousname <- att_serious_bin_
+  if(att_serious_bin_== "All"){
+    att_serious_bin_ <- c(NA, "Agree", "Disagree", "Neutral")
+  } 
+  
+  # if(all(att_serious_bin_ ==  "Agree")) browser()
+  dt <- dt[area %in% area_ & part_age_group %in% age_ & 
+             part_gender %in% gender_ &
+             part_social_group %in% soc_group_ & 
+             part_high_risk %in% risk_group_ &
+             part_att_spread_bin %in% att_spread_bin_ &
+             part_att_likely_bin %in% att_likely_bin_ &
+             part_att_serious_bin %in% att_serious_bin_]
+  
   bs_list <- list()
   for(i in 1:sims){
     pids <- unique(dt$part_id)
@@ -77,6 +107,9 @@ bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult",
       part_social_group = socgroupname,
       part_region = regionname,
       part_high_risk = riskgroupname,
+      part_att_spread_bin = attspreadname,
+      part_att_likely_bin = attlikelyname,
+      part_att_serious_bin = attseriousname,
       iteration = i, 
       All = weighted.mean(n_cnt, w = dayweight),
       Home = weighted.mean(n_cnt_home,  w = dayweight),
