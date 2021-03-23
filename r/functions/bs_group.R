@@ -96,11 +96,15 @@ bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult",
   
   bs_list <- list()
   for(i in 1:sims){
-    pids <- unique(dt$part_id)
+    pids <- unique(dt$part_wave_uid)
     nsamp <- length(pids)*prop
-    df_samp <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
-    samp1 <- merge(df_samp, dt, by = "part_id")
-    bs_list[[i]] <- samp1[, .(
+    df_samp <- data.table(part_wave_uid = sample(pids, replace = TRUE, size = nsamp))
+    # if (nrow(df_samp) == 0) browser()
+    # 
+    # browser()
+    
+    samp1 <- merge(df_samp, dt, by = "part_wave_uid")
+    bs_dt <- samp1[, .(
       N = .N,
       part_age_group = agename,
       part_gender = gendername,
@@ -124,6 +128,7 @@ bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult",
       ),
       by = .(start_date, mid_date, end_date, survey_round)
       ]
+    bs_list[[i]] <- bs_dt
   }
   rbindlist(bs_list)
 }  

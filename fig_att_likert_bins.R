@@ -15,8 +15,8 @@ library(patchwork)
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
 
 # Load participant data ---------------------------------------------------
-sys_date <- Sys.Date()
-file_path <- file.path("data", paste(sys_date, boots, "bs_means_2w.qs", sep = "_"))
+sys_date <- Sys.Date() -1
+file_path <- file.path("data", paste(sys_date, "bs_means_2w.qs", sep = "_"))
 dt <- qs::qread(file_path)
 message(paste("read from:", file_path))
 
