@@ -4,7 +4,7 @@
 ## Input file: dt_1w and dt_2w
 ## Functions: bs_group
 ## Output file: 2021-01-24_bs_means_2w.qs
-
+set.seed(23032021)
 # Packages ----------------------------------------------------------------
 library(data.table)
 library(lubridate)
@@ -37,8 +37,8 @@ pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
 
 # Define boots ------------------------------------------------------------
 
-# boots <- 1000
 boots <- 1000
+# boots <- 150
 dt_boot <- data.table()
 
 

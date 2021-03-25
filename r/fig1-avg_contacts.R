@@ -120,12 +120,14 @@ study_dates <- as.Date(c(
   "2020-09-02"
 ))
 
+second_recruitment_date <- "2020-08-09"
+
 contacts_p <- plot_mean(all_age, time_break = "month", upper_limit = 20) +
     annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
     annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
     annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
-    annotate("text", x = as.Date("2020-12-22"), y = 19.5, label = "Christmas", angle = 0) +
-    annotate("text", x = as.Date("2020-08-15"), y = 19.5, label = "Reduced\nrestrictions") + 
+    annotate("text", x = as.Date("2020-12-22"), y = 19.5, label = "Christmas", angle = 0) #+
+    # annotate("text", x = as.Date("2020-08-15"), y = 19.5, label = "Reduced\nrestrictions") + 
     ggtitle("A") +
     labs(subtitle = "Adults")
 

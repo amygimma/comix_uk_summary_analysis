@@ -35,105 +35,6 @@ part[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey
 
 dt <- part
 
-# Attitudes ---------------------------------------------------------------
-cols_1 <- c('#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac')
-
-plotter_lk <- function(var, lab, cols_ = cols_1) {
-  p1 <- dt[ !is.na(get(var))& get(var) != "no answer"]
-  dt[, part_total_responses := .N, by = part_id]
-  p2 <- p1[, .N, by = .(get(var), mid_date,survey_round)]
-  p2[, perc := N / sum(N), by = .(mid_date, survey_round)]
-  p2[, type := "Everyone"]
-  
-  ggplot(p2, aes(x = mid_date, fill = get)) +
-    geom_area(aes(y = perc)) +
-    scale_y_continuous(labels = scales::percent, expand = expansion(0)) + 
-    scale_x_date(breaks = "month", date_labels = "%b") +
-    expand_limits(x = expand_dates) +
-    scale_fill_discrete(name = "", type = cols_) +
-    theme(legend.position = "top", legend.direction = "horizontal") +
-    guides(guide_legend(label.position = "top")) +
-    labs(fill = lab) +
-    labs(x = "", y = "", subtitle = lab) 
-}
-
-
-lk_spread_p  <- plotter_lk("part_att_spread",  lab = "Likely to give to someone I know") 
-lk_catch_p   <- plotter_lk("part_att_likely",  lab = "Likely to get covid")
-lk_serious_p <- plotter_lk("part_att_serious",  lab = "Covid would be serious for me")
-lk_hr_p      <- plotter_lk("part_high_risk",  lab = "High risk", cols_ = c(cols_1[1], cols_1[5]))
-
-
-
-
-# Avg contacts- no CIs ------------------------------------------------------------
-
-pdt <- qs::qread('data/dt_2w.qs')
-
-map_likert2 <- c("Strongly agree" = "Agree",
-                 "Tend to agree" = "Agree",
-                 "Neither agree nor disagree" = "Neutral",
-                 "Tend to disagree" = "Disagree", 
-                 "Strongly disagree" = "Disagree"
-)
-map_hr <- c(
-  "yes" = "Yes",
-  "no" = "No"
-)
-
-pdt[, part_att_spread_bin := map_likert2[part_att_spread]]
-pdt[, part_att_likely_bin := map_likert2[part_att_likely]]
-pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
-pdt[, part_high_risk_bin := map_hr[part_high_risk]]
-  
-spread <- pdt[, .(cnt =weighted.mean(n_cnt, w = dayweight)), by = .(part_att_spread_bin, start_date, mid_date, end_date, survey_round)]
-likely <- pdt[, .(cnt =weighted.mean(n_cnt, w = dayweight)), by = .(part_att_likely_bin, start_date, mid_date, end_date, survey_round)]
-serious <- pdt[, .(cnt =weighted.mean(n_cnt, w = dayweight)), by = .(part_att_serious_bin, start_date, mid_date, end_date, survey_round)]
-high_risk <- pdt[, .(cnt =weighted.mean(n_cnt, w = dayweight)), by = .(part_high_risk_bin, start_date, mid_date, end_date, survey_round)]
-
-plot_mean <- function(dt, time_break = "2 month", upper_limit = 6, var){
-  ggplot(dt, aes(x = mid_date)) +
-    #geom_ribbon(aes(ymin = lci, ymax = uci, group = part_age_group), alpha = 0.2) +
-    geom_line( aes(y = cnt, linetype = get(var), col = get(var))) +
-    labs(title = "", y = "Mean contacts", x = "") +
-    scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-    expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
-    expand_limits(x = expand_dates) + 
-    theme(
-      panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.1,0.8)
-    ) +
-    scale_linetype(name = var) +
-    scale_color_discrete(name = var) +
-    # geom_vline(aes(xintercept = study_dates[1]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[2]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[3]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[4]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[5]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[6]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[7]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[8]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[9]), linetype = "dashed",  alpha = 0.3) +
-    # geom_vline(aes(xintercept = study_dates[10]), linetype = "dashed", alpha = 0.3) +
-    annotate("rect", 
-             xmin = study_dates[1], xmax = study_dates[2],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[3], xmax = study_dates[4],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[5], xmax = study_dates[6],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[7], xmax = study_dates[8],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[9], xmax = study_dates[10],
-             ymin = 0, ymax = upper_limit, alpha = .1)  
-}
-
-
 study_dates <- as.Date(c(
   "2020-03-23",
   "2020-06-03",
@@ -147,12 +48,6 @@ study_dates <- as.Date(c(
   "2020-09-02"
 ))
 
-avg_spread_p  <-  plot_mean(spread, var = "part_att_spread_bin") 
-avg_catch_p   <-  plot_mean(likely, var = "part_att_likely_bin")
-avg_serious_p <-  plot_mean(serious, var = "part_att_serious_bin")
-avg_hr_p      <-  plot_mean(high_risk, var = "part_high_risk_bin")
-
-
 
 # Filter data -------------------------------------------------------------
 mid_dates <- part[, .(mid_date = first(mid_date)), by = .(survey_round, country)]
@@ -160,20 +55,20 @@ mid_dates <- part[, .(mid_date = first(mid_date)), by = .(survey_round, country)
 contacts <- merge(contacts, mid_dates, by = c("survey_round", "country"))
 
 # Facemask use ------------------------------------------------------------
-# fm <-  part[, .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, country)] 
-# 
-# fm[, fm_per := fm/(fm +nofm)]
-# 
-# 
-# facemask_p <- ggplot(fm) +
-#   geom_point(aes(x = mid_date, y = fm_per)) +
-#   geom_line(aes(x = mid_date, y = fm_per)) +
-#   scale_y_continuous(expand = expansion(0), labels = scales::percent, limits = c(0,1)) +
-#   expand_limits(x = expand_dates) +
-#   labs(y = "", x = "", subtitle = "Use of facemasks") +
-#   ggtitle("")
-# 
-# facemask_p
+fm <-  part[, .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, country)]
+
+fm[, fm_per := fm/(fm +nofm)]
+
+
+facemask_p <- ggplot(fm) +
+  geom_point(aes(x = mid_date, y = fm_per)) +
+  geom_line(aes(x = mid_date, y = fm_per)) +
+  scale_y_continuous(expand = expansion(0), labels = scales::percent, limits = c(0,1)) +
+  expand_limits(x = expand_dates) +
+  labs(y = "", x = "", subtitle = "Use of facemasks") +
+  ggtitle("")
+
+facemask_p
 
 
 # # Hand washing and sanitiser ------------------------------------------------------------
@@ -248,54 +143,62 @@ contacts <- merge(contacts, mid_dates, by = c("survey_round", "country"))
 # # Other graphs ------------------------------------------------------------
 # 
 # 
-# part[part_age_group %in% c( "5-11", "12-17"),  part_age_group3 :="5-17"]
-# part[part_age_group %in% c("40-49", "50-59", "30-39", "18-29"),  part_age_group3 :="18-59"]
-# part[part_age_group %in% c( "70-120", "60-69"),  part_age_group3 := "60+"]
-#    
+part[part_age_group %in% c( "5-11", "12-17"),  part_age_group3 :="5-17"]
+part[part_age_group %in% c("40-49", "50-59", "30-39", "18-29"),  part_age_group3 :="18-59"]
+part[part_age_group %in% c( "70-120", "60-69"),  part_age_group3 := "60+"]
+
 # 
 # 
 # 
-# fm_age <-  part[, .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, part_age_group3)] 
-# 
-# fm_age[, fm_per := fm/(fm +nofm)]
-# ggplot(fm_age) +
-#   geom_line(aes(x = mid_date, y = fm_per, col= part_age_group3)) +
-#   scale_y_continuous(limits = c(0,1)) +
-#   ggtitle("A: Facemask use") 
-# 
-# non_household_cnt <- contacts[cnt_household == 0, .(total_non_hh_contacts = .N), by = c("part_wave_uid")]
-# total_cnt <- contacts[, .(total_contacts = .N), by = c("part_wave_uid")]
-# 
-# part <- merge(part, non_household_cnt, by = "part_wave_uid", all.x = T)
-# part[is.na(total_non_hh_contacts), total_non_hh_contacts := 0]
-# part <- merge(part, total_cnt, by = "part_wave_uid", all.x = T)
-# part[is.na(total_contacts), total_non_hh_contacts := 0]
-# 
-# 
-# fm_age_w_contacts <-  part[total_non_hh_contacts > 0, 
-#                            .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), 
-#                            by = .(survey_round, mid_date, part_age_group3)] 
-# 
-# fm_age_w_contacts[, fm_per := fm/(fm +nofm)]
-# ggplot(fm_age_w_contacts) +
-#   geom_line(aes(x = mid_date, y = fm_per, col= part_age_group3)) +
-#   scale_y_continuous(limits = c(0,1)) +
-#   ggtitle("A: Facemask use (with non-hh contacts)") 
-# 
-# fm_region <-  part[country == "uk", .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, area_3_name)] 
-# fm_region[, fm_per := fm/(fm +nofm)]
-# fm_country <-  part[, .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, country)] 
-# fm_country[, fm_per := fm/(fm +nofm)]
-# 
-# ggplot(fm_country) +
-#   geom_line(aes(x = mid_date, y = fm_per, col= country)) +
-#   scale_y_continuous(limits = c(0,1)) +
-#   ggtitle("A: Facemask use") 
-# 
-# ggplot(fm_region) +
-#   geom_line(aes(x = mid_date, y = fm_per, col= area_3_name)) +
-#   scale_y_continuous(limits = c(0,1)) +
-#   ggtitle("A: Facemask use") 
+fm_age <-  part[, 
+                .(.N, fm = sum(part_face_mask == "yes"), 
+                  nofm = sum(part_face_mask == "no") ), 
+                by = .(survey_round, mid_date, part_age_group3)]
+
+fm_age[, fm_per := fm/(fm +nofm)]
+mask_use <- ggplot(fm_age) +
+  geom_line(aes(x = mid_date, y = fm_per, col= part_age_group3)) +
+  scale_y_continuous(limits = c(0,1)) +
+  ggtitle("A: Facemask use")
+mask_use
+
+non_household_cnt <- contacts[cnt_household == 0, .(total_non_hh_contacts = .N), by = c("part_wave_uid")]
+total_cnt <- contacts[, .(total_contacts = .N), by = c("part_wave_uid")]
+
+part <- merge(part, non_household_cnt, by = "part_wave_uid", all.x = T)
+part[is.na(total_non_hh_contacts), total_non_hh_contacts := 0]
+part <- merge(part, total_cnt, by = "part_wave_uid", all.x = T)
+part[is.na(total_contacts), total_non_hh_contacts := 0]
+
+
+fm_age_w_contacts <-  part[total_non_hh_contacts > 0,
+                           .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ),
+                           by = .(survey_round, mid_date, part_age_group3)]
+
+fm_age_w_contacts[, fm_per := fm/(fm +nofm)]
+mask_use_w_contacts <- ggplot(fm_age_w_contacts) +
+  geom_line(aes(x = mid_date, y = fm_per, col= part_age_group3)) +
+  scale_y_continuous(limits = c(0,1)) +
+  ggtitle("B: Facemask use (with non-hh contacts)")
+
+(mask_use / mask_use_w_contacts) + plot_layout(guides = "collect")
+
+fm_region <-  part[country == "uk", .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, area_3_name)]
+fm_region[, fm_per := fm/(fm +nofm)]
+fm_country <-  part[, .(.N, fm = sum(part_face_mask == "yes"), nofm = sum(part_face_mask == "no") ), by = .(survey_round, mid_date, country)]
+fm_country[, fm_per := fm/(fm +nofm)]
+
+ggplot(fm_country) +
+  geom_line(aes(x = mid_date, y = fm_per, col= country)) +
+  scale_y_continuous(limits = c(0,1)) +
+  ggtitle("A: Facemask use")
+
+ggplot(fm_region) +
+  geom_line(aes(x = mid_date, y = fm_per, col= area_3_name)) +
+  scale_y_continuous(limits = c(0,1)) +
+  ggtitle("A: Facemask use")
+
+
 
 
 

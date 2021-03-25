@@ -1,6 +1,9 @@
 
 
-bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult", 
+
+bs_group <- function(dt, 
+                     sims, 
+                     prop = 1.0, 
                      area_ = "All", 
                      age_ = "All", 
                      gender_ = "All", 
@@ -93,17 +96,14 @@ bs_group <- function(dt, sims, prop = 1.0, samp_type = "adult",
              part_att_spread_bin %in% att_spread_bin_ &
              part_att_likely_bin %in% att_likely_bin_ &
              part_att_serious_bin %in% att_serious_bin_]
-  
+
   bs_list <- list()
   for(i in 1:sims){
-    pids <- unique(dt$part_wave_uid)
+    pids <- unique(dt$part_id)
     nsamp <- length(pids)*prop
-    df_samp <- data.table(part_wave_uid = sample(pids, replace = TRUE, size = nsamp))
-    # if (nrow(df_samp) == 0) browser()
-    # 
-    # browser()
-    
-    samp1 <- merge(df_samp, dt, by = "part_wave_uid")
+    df_samp <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
+
+    samp1 <- merge(df_samp, dt, by = "part_id")
     bs_dt <- samp1[, .(
       N = .N,
       part_age_group = agename,

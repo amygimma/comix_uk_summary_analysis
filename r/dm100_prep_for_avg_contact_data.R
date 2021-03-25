@@ -24,6 +24,8 @@ ct$cnt_outside <- as.numeric(ct$cnt_outside)
 # Map objects for labels --------------------------------------------------
 cnt_main_vars <- c(
   "cnt_home", 
+  "cnt_household",
+  "cnt_household",
   "cnt_work",
   "cnt_school",
   "cnt_other",
@@ -53,9 +55,13 @@ ct <- ct[, ..all_vars]
 
 sumna <- function(x) sum(x, na.rm = TRUE)
 
+ct[, cnt_non_household := ifelse(cnt_household == 0, 1, 0)]
+
 cp_n_cnts <- ct[, .(
   n_cnt = .N,
   n_cnt_home             = sumna(cnt_home),
+  n_cnt_household        = sumna(cnt_household),
+  n_cnt_non_household    = sumna(cnt_non_household),
   n_cnt_work             = sumna(cnt_work),
   n_cnt_school           = sumna(cnt_school),
   n_cnt_other            = sumna(cnt_other),
@@ -140,6 +146,8 @@ vars <- c(
   ## contact setting
   "n_cnt",
   "n_cnt_home",
+  "n_cnt_household",
+  "n_cnt_non_household",
   "n_cnt_workschool",
   "n_cnt_work" ,
   "n_cnt_school",
@@ -163,6 +171,7 @@ vars <- c(
   "part_att_spread",
   "part_att_likely",
   "part_att_serious",
+  "part_face_mask",
   ## Weighting
   "dayweight"
 )
