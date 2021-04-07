@@ -1,7 +1,16 @@
 # CoMix summary analysis for the United Kingdom
 
-### File structure
+### Running code
 
+Will fill out this section
+
+#### Data cleaning and analysis
+
+#### Figures
+
+#### Tables
+
+### File structure
 
 #### Data cleaning and analysis
 
@@ -14,7 +23,7 @@ dm103_calc_avg_proportions.R
 #### Figures
 
 fig1-avg_contacts.R      
-fig_att_likert_bins.R   
+fig_att_likert_bins.R   - will remove
 fig_att_likert_bins_age.R         
 fig_facemasks.R            
 fig_likert_supp.R                
