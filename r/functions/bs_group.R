@@ -1,6 +1,7 @@
 
 
 
+
 bs_group <- function(dt, 
                      sims, 
                      prop = 1.0, 
@@ -11,7 +12,10 @@ bs_group <- function(dt,
                      risk_group_ = "All",
                      att_spread_bin_ = "All",
                      att_likely_bin_ = "All",
-                     att_serious_bin_ = "All"
+                     att_serious_bin_ = "All",
+                     employ_ = "All",
+                     income_ = "All" ,
+                     workplace_ = "All"
 ) {
 
   # subset by region --------------------------------------------------------
@@ -52,6 +56,38 @@ bs_group <- function(dt,
   } 
 
   
+  # Subset by income --------------------------------------------------------
+  incomename <- income_
+  if(income_ == "All"){
+    income_ <- c("<5,000", "5,000-9,999", "10,000-14,999", "15,000-19,999",
+                 "20,000-24,999", "25,000-34,999", "35,000-44,999",
+                 "45,000-54,999", "55,000-99,999", "100,000+", NA,
+                 "prefer not to answer")
+  } else if(income_ == "<20k"){
+    income_ <- c("<5,000", "5,000-9,999", "10,000-14,999", "15,000-19,999")
+  } else if(income_ == "20k-44.9k"){
+    income_ <- c("20,000-24,999", "25,000-34,999", "35,000-44,999")
+  } else if(income_ == "45k+"){
+    income_ <- c("45,000-54,999", "55,000-99,999", "100,000+")
+  } 
+  
+  
+  #Subset by employ --------------------------------------------------------
+  employname <- employ_
+  if(employ_ == "All"){
+    employ_ <- c("Full time", "Part time", "Self employed", NA)
+  } 
+  
+  # Subset by workplace --------------------------------------------------------
+  workplacename <- workplace_
+  if(workplace_ == "All"){
+    workplace_ <- c("open", "closed", NA)
+  } else if(workplace_ == "open"){
+    workplace_ <- "open"
+  } else if(workplace_ == "closed"){
+    workplace_ <- "closed"
+  }
+  
   # Subset by social group --------------------------------------------------
   socgroupname <- soc_group_
   if(soc_group_ == "All"){
@@ -88,14 +124,16 @@ bs_group <- function(dt,
     att_serious_bin_ <- c(NA, "Agree", "Disagree", "Neutral")
   } 
   
-  # if(all(att_serious_bin_ ==  "Agree")) browser()
   dt <- dt[area %in% area_ & part_age_group %in% age_ & 
              part_gender %in% gender_ &
              part_social_group %in% soc_group_ & 
              part_high_risk %in% risk_group_ &
              part_att_spread_bin %in% att_spread_bin_ &
              part_att_likely_bin %in% att_likely_bin_ &
-             part_att_serious_bin %in% att_serious_bin_]
+             part_att_serious_bin %in% att_serious_bin_ &
+             part_income %in% income_ & 
+             part_employed %in% employ_ &
+             part_work_place %in% workplace_]
 
   bs_list <- list()
   for(i in 1:sims){
@@ -111,12 +149,16 @@ bs_group <- function(dt,
       part_social_group = socgroupname,
       part_region = regionname,
       part_high_risk = riskgroupname,
+      part_income = incomename,
+      part_employed = employname,
+      part_work_place = workplacename,
       part_att_spread_bin = attspreadname,
       part_att_likely_bin = attlikelyname,
       part_att_serious_bin = attseriousname,
       iteration = i, 
       All = weighted.mean(n_cnt, w = dayweight),
       Home = weighted.mean(n_cnt_home,  w = dayweight),
+      Work = weighted.mean(n_cnt_work,  w = dayweight),
       `Work/Educ` = weighted.mean(n_cnt_workschool,  w = dayweight),
       Other = weighted.mean(n_cnt_other,  w = dayweight),
       Physical = weighted.mean(n_cnt_phys,  w = dayweight),

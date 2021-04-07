@@ -30,7 +30,7 @@ pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 # part[is.na(total_contacts), total_non_hh_contacts := 0]
 # Define boots ------------------------------------------------------------
 
-boots <- 10
+boots <- 1000
 # boots <- 15
 
 

@@ -107,6 +107,33 @@ dt[, area := area_3_name]
 dt[area_3_name %in% c("Yorkshire and The Humber", "North East"), area := "North East and Yorkshire"]
 dt[area_3_name %in% c("East Midlands", "West Midlands"), area := "Midlands"]
 
+## Created an employed variables -------------------------------------------
+dt[part_employstatus=="employed full-time (34 hours or more)", part_employed := "Full time"]
+dt[part_employstatus=="employed part-time (less than 34 hours)", part_employed := "Part time"]
+dt[part_employstatus=="self employed", part_employed := "Self employed"]
+
+dt[, table(survey_round, part_employstatus)]
+dt[, table(survey_round, part_employed)]
+## Created a workplace variables ------------------------------------------
+dt[, table(survey_round, part_work_closed)]
+dt[part_work_closed == "no", part_work_place := "open"]
+dt[part_work_closed == "yes", part_work_place := "closed"]
+
+dt[, table(survey_round, part_work_place)]
+
+
+# Income ------------------------------------------------------------------
+dt[part_income=="under £5,000",      part_income := "<5,000"]
+dt[part_income=="£5,000 - £9,999",   part_income := "5,000-9,999"] 
+dt[part_income=="£10,000 - £14,999", part_income := "10,000-14,999"]
+dt[part_income=="£15,000 - £19,999", part_income := "15,000-19,999"]
+dt[part_income=="£20,000 - £24,999", part_income := "20,000-24,999"]
+dt[part_income=="£25,000 - £34,999", part_income := "25,000-34,999"]
+dt[part_income=="£35,000 - £44,999", part_income := "35,000-44,999"]
+dt[part_income=="£45,000 - £54,999", part_income := "45,000-54,999"]
+dt[part_income=="£55,000 - £99,999", part_income := "55,000-99,999"]
+dt[part_income=="£100,000 or more",  part_income := "100,000+"]
+
 
 # Create a weekday weekend weight -----------------------------------------
 dt[, dayweight := fifelse(weekday %in% c("Sun", "Sat"), 2/7, 5/7)]
@@ -143,7 +170,7 @@ vars <- c(
   "panel",
   "wave",
   "part_wave_uid",
-  ## contact setting
+  ## Contact setting main
   "n_cnt",
   "n_cnt_home",
   "n_cnt_household",
@@ -153,13 +180,12 @@ vars <- c(
   "n_cnt_school",
   "n_cnt_other",
   "n_cnt_phys",
-  ## Other 
+  ## Other settings
   "n_cnt_inside", 
   "n_cnt_outside", 
   "n_cnt_other_house",
   "n_cnt_supermarket",
   "n_cnt_bar_rest",
-  
   ## Subsets
   "country",
   "sample_type",
@@ -167,11 +193,17 @@ vars <- c(
   "part_age_group",
   "part_social_group",
   "part_gender",
+  # Risk
   "part_high_risk",
   "part_att_spread",
   "part_att_likely",
   "part_att_serious",
   "part_face_mask",
+  # SE
+  "part_work_closed",
+  "part_income",
+  "part_employed",
+  "part_work_place",
   ## Weighting
   "dayweight"
 )
@@ -182,6 +214,7 @@ vars <- c(
 p1 <- dt[, ..vars] ## Will be used for one week version
 p2 <-  dt[, ..vars]
 
+qs::qsave(p1,file =  '../comix/data/part_cnts.qs')
 
 ## Move p2 back for one survey round
 p2[, survey_round := survey_round -1]

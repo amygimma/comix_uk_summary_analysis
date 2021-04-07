@@ -32,19 +32,33 @@ map_likert2 <- c("Strongly agree" = "Agree",
 pdt[, part_att_spread_bin := map_likert2[part_att_spread]]
 pdt[, part_att_likely_bin := map_likert2[part_att_likely]]
 pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
+# pdt[part_age_group %in% c("60-69", "70-120"), part_age_group := ""]
 # pdt[, part_high_risk_bin := map_hr[part_high_risk]]
 
 
 # Define boots ------------------------------------------------------------
 
 boots <- 1000
-# boots <- 150
+# boots <- 10
 dt_boot <- data.table()
 
 
 
 
 # Main analysis -----------------------------------------------------------
+## Adults by socio-economic status
+for(i in c("60+", "18-59")){
+  for(j in sort(unique(pdt$part_social_group))){
+    if(!is.na(j)){
+      print(i)
+      print(j)
+      dt1 <- bs_group(pdt, boots, prop = 1.0, soc_group_ = j,  age_ = i)
+      browser()
+      
+      dt_boot <- rbind(dt_boot, dt1)
+    }
+  }
+}
 
 ## Setting and risk by age
 for(i in c("0-4", "5-17", "18-59", "60+")){
@@ -54,20 +68,6 @@ for(i in c("0-4", "5-17", "18-59", "60+")){
     dt3 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "no")
     
     dt_boot <- rbind(dt_boot, dt1, dt2, dt3)
-}
-
-
-## Adults by socio-economic status
-for(i in c("18-59", "60+")){
-    for(ii in unique(pdt$part_social_group)){
-      if(i %in% c("18-59", "60+")){
-        print(ii)
-        print(i)
-        dt1 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = ii,  age_ = i)
-        
-        dt_boot <- rbind(dt_boot, dt1)
-      }
-    }
 }
 
 # Get regions -------------------------------------------------------------
@@ -125,9 +125,33 @@ for(i in c("Agree", "Disagree", "Neutral")){
   dt_boot <- rbind(dt_boot, dt1, dt2)
 }
 
+
+# Get employment status ---------------------------------------------------
+for(i in c("Full time", "Part time", "Self employed")){
+  print(i)
+  dt1 <- bs_group(pdt, boots, prop = 1, income_ = "All", employ_ = i, workplace_ = "open", age_ = "All-adults")
+  dt_boot <- rbind(dt_boot, dt1)
+}
+
+# Get income ---------------------------------------------------------------
+for(i in c("<20k","20k-44.9k","45k+")){
+  print(i)
+  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All", workplace_ = "open", age_ = "All-adults")
+  dt_boot <- rbind(dt_boot, dt1)
+}
+
+
+# Employment within income -------------------------------------------------
+for(i in c("<20k","20k-44.9k","45k+")){
+  print(i)
+  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Full time", workplace_ = "open", age_ = "All-adults")
+  dt2 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Part time", workplace_ = "open", age_ = "All-adults")
+  dt_boot <- rbind(dt_boot, dt1, dt2)
+}
+
 dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
-mea_vars <- c("All", "Home", "Work/Educ", "Other",
+mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",
   "Physical",
   "Inside",
   "Outside",
@@ -136,7 +160,8 @@ mea_vars <- c("All", "Home", "Work/Educ", "Other",
   "Bar restaurant")
 
 
-l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_social_group", 
+l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_work_place",
+                                  "part_employed", "part_income", "part_social_group", 
                                   "part_high_risk", "start_date", "part_att_spread_bin", 
                                   "part_att_likely_bin", "part_att_serious_bin",
                                   "mid_date", "end_date", "survey_round", "n"), 
@@ -147,8 +172,8 @@ dts <- l_dt[, .(
   mean = mean(avg, na.rm = T), 
   uci = quantile(avg, 0.975, na.rm = T), 
   boots = .N),
-  by = .(part_age_group, part_region, part_gender, part_social_group, 
-         part_high_risk, part_att_spread_bin, 
+  by = .(part_age_group, part_region, part_gender, part_social_group, part_work_place,
+         part_income, part_employed, part_high_risk, part_att_spread_bin, 
          part_att_likely_bin, part_att_serious_bin,
          start_date, mid_date, end_date, setting, n)]
 
@@ -156,10 +181,12 @@ dts <- l_dt[, .(
 
 # Save data ---------------------------------------------------------------
 sys_date <- Sys.Date()
-file_path <- file.path("data", paste(sys_date, boots, "bs_means_2w.qs", sep = "_"))
-file_path <- file.path("data", paste(sys_date, "bs_means_2w.qs", sep = "_"))
-
+file_path <- file.path("data", paste(sys_date,"v2", boots, "bs_means_2w.qs", sep = "_"))
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
+
+file_path <- file.path("data","bs_means_2w.qs")
+# qs::qsave(dts, file_path)
+# message(paste("saved to:", file_path))
 
 
