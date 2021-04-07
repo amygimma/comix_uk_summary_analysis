@@ -6,6 +6,8 @@
 
 
 data/*
+!data/readme
 outputs/*
+!outputs/readme
 *.qs
 *.csv

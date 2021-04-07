@@ -7,7 +7,7 @@
 
 dm100_prep_for_avg_contact_data.R
 dm101_calc_avg_contact_data.R      
-dm102_calc_avg_contact_data_risk.R  
+dm102_calc_avg_contact_data_risk.R
 dm103_calc_avg_proportions.R         
 
 
