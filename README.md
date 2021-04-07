@@ -15,34 +15,49 @@ Will fill out this section
 #### Data cleaning and analysis
 
 dm100_prep_for_avg_contact_data.R
+
 dm101_calc_avg_contact_data.R      
+
 dm102_calc_avg_contact_data_risk.R
+
 dm103_calc_avg_proportions.R         
 
 
 #### Figures
 
-fig1-avg_contacts.R      
-fig_att_likert_bins.R   - will remove
-fig_att_likert_bins_age.R         
-fig_facemasks.R            
-fig_likert_supp.R                
+fig1-avg_contacts.R
+
+fig_att_likert_bins.R   - will remove 
+
+fig_att_likert_bins_age.R
+
+fig_facemasks.R
+
+fig_likert_supp.R
+
 fig_se_groups.R
+
 
 
 #### Setup & summary
 
-setup.R
-results_text.R
-tab_se_vars.R
+setup.R 
+
+results_text.R 
+
+tab_se_vars.R 
+
 
 
 #### Functions
 
-bs_group.R
+bs_group.R 
+
 bs_facemask_proportion.R    
+
 ggthemr_workaround.R # can probably remove
-utility_functions.R
+
+utility_functions.R 
 
 
 ### Outputs
