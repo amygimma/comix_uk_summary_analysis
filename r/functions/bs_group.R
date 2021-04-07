@@ -140,8 +140,21 @@ bs_group <- function(dt,
     pids <- unique(dt$part_id)
     nsamp <- length(pids)*prop
     df_samp <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
+    
+    tryCatch({
+      samp1 <- merge(df_samp, dt, by = "part_id")
+      
+    }, error = function(error_condition) {
 
-    samp1 <- merge(df_samp, dt, by = "part_id")
+      message("Resampling for merge error")
+      message(paste("Error message:", error_condition, sep = "\n"))
+      
+      # ns <- c("part_id", "part_social_group")
+      # part_id_ <- df_samp$part_id[133]
+      df_samp2 <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
+      samp1 <- merge(df_samp2, dt, by = "part_id")
+  
+    })
     bs_dt <- samp1[, .(
       N = .N,
       part_age_group = agename,
