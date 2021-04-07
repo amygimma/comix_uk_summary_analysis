@@ -35,7 +35,6 @@ pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
 # pdt[part_age_group %in% c("60-69", "70-120"), part_age_group := ""]
 # pdt[, part_high_risk_bin := map_hr[part_high_risk]]
 
-
 # Define boots ------------------------------------------------------------
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -43,12 +42,13 @@ print(args)
 if (length(args) == 1) boots <- as.numeric(args)
 if (!exists("groups")) boots <- 100
 
-
+boots <- 1000
 dt_boot <- data.table()
 message(paste("Running", boots, "bootstrapped samples"))
 
 
-# Main analysis -----------------------------------------------------------
+
+# SE analysis -----------------------------------------------------------
 ## Adults by socio-economic status
 for(i in c("60+", "18-59")){
   for(j in sort(unique(pdt$part_social_group))){
@@ -62,71 +62,13 @@ for(i in c("60+", "18-59")){
   }
 }
 
-## Setting and risk by age
-for(i in c("0-4", "5-17", "18-59", "60+")){
-  print(i)
-    dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All" )
-    dt2 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "yes")
-    dt3 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "no")
-    
-    dt_boot <- rbind(dt_boot, dt1, dt2, dt3)
-}
-
-# Get regions -------------------------------------------------------------
-for(i in c(unique(pdt$area), "England")){
-  print(i)
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-
-# Get age groups ----------------------------------------------------------
-for(i in c(unique(pdt$part_age_group), "All", "All-adults")){
-  print(i)
-  if(!is.na(i)){
-    dt1 <- bs_group(pdt,  boots, prop = 1.0, area_ = "All", age = i)
-    dt_boot <- rbind(dt_boot, dt1)
-  }
-}
-
-
-# Get for gender ----------------------------------------------------------
-for(i in c("male", "female")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
 
 # Get for socioeconomic status ---------------------------------------------
 for(i in unique(pdt$part_social_group)){
   dt1 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
+  # dt2 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i, age_ = "All")
+  dt_boot <- rbind(dt_boot, dt1)
 }
-
-# Get for att_spread status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-# Get for att_likely status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-# Get for att_serious status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
 
 # Get employment status ---------------------------------------------------
 for(i in c("Full time", "Part time", "Self employed")){
@@ -183,11 +125,12 @@ dts <- l_dt[, .(
 
 # Save data ---------------------------------------------------------------
 sys_date <- Sys.Date()
-file_path <- file.path("data", paste(sys_date, boots, "bs_means_2w.qs", sep = "_"))
+filename <- "bs_means_2w_se.qs"
+file_path <- file.path("data", paste(sys_date, boots, filename, sep = "_"))
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
 
-file_path <- file.path("data","bs_means_2w.qs")
+file_path <- file.path("data", filename)
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
 
