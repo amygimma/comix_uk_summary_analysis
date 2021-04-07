@@ -38,11 +38,14 @@ pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
 
 # Define boots ------------------------------------------------------------
 
-boots <- 1000
-boots <- 10
+args <- commandArgs(trailingOnly=TRUE)
+print(args)
+if (length(args) == 1) boots <- as.numeric(args)
+if (!exists("groups")) boots <- 10
+
+
 dt_boot <- data.table()
-
-
+message(paste("Running", boots, "bootstrapped samples"))
 
 
 # Main analysis -----------------------------------------------------------
@@ -57,32 +60,21 @@ for(i in c("0-4", "5-17", "18-59", "60+")){
   dt_boot <- rbind(dt_boot, dt1, dt2, dt3)
 }
 
-# Get for att_spread status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i,  age_ = "All-adults")
-  # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1)
-}
 
 # Get for att_spread status age ---------------------------------------------
 for(i in c("Agree", "Disagree", "Neutral")){
   for (j in c("18-59", "60+")) {
+  # for (j in c("18-59", "60+", "All-adults")) { # analysis currently doesn't use All-adults group
     dt1 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i,  age_ = j)
-    # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i, age_ = "All")
     dt_boot <- rbind(dt_boot, dt1)
   }
 }
 
-# Get for att_likely status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i,  age_ = "All-adults")
-  # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1)
-}
 
 # Get for att_likely status age ---------------------------------------------
 for(i in c("Agree", "Disagree", "Neutral")){
   for (j in c("18-59", "60+")) {
+  # for (j in c("18-59", "60+", "All-adults")) { # analysis currently doesn't use All-adults group
     dt1 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i,  age_ = j)
     # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i, age_ = "All")
     dt_boot <- rbind(dt_boot, dt1)
@@ -98,6 +90,7 @@ for(i in c("Agree", "Disagree", "Neutral")){
 
 for(i in c("Agree", "Disagree", "Neutral")){
   for (j in c("18-59", "60+")) {
+  # for (j in c("18-59", "60+", "All-adults")) { # analysis currently doesn't use All-adults group
     print(i)
     print(j)
     dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = j)
@@ -109,7 +102,7 @@ for(i in c("Agree", "Disagree", "Neutral")){
 
 
 
-dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, 
+dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender,
                                         part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
 mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",

@@ -30,9 +30,13 @@ pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 # part[is.na(total_contacts), total_non_hh_contacts := 0]
 # Define boots ------------------------------------------------------------
 
-boots <- 1000
-# boots <- 15
+args <- commandArgs(trailingOnly=TRUE)
+print(args)
+if (length(args) == 1) boots <- as.numeric(args)
+if (!exists("groups")) boots <- 100
 
+dt_boot <- data.table()
+message(paste("Running", boots, "bootstrapped samples"))
 
 
 

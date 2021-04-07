@@ -24,12 +24,14 @@ dm101_calc_avg_contact_data.R
 
 dm102_calc_avg_contact_data_risk.R
 
-dm103_calc_avg_proportions.R         
+dm103_calc_avg_contact_data_se.R
+
+dm111_calc_avg_proportions.R         
 
 
 #### Figures
 
-fig1-avg_contacts.R
+fig1_avg_contacts.R
 
 fig_att_likert_bins.R   - will remove 
 
@@ -43,9 +45,7 @@ fig_se_groups.R
 
 
 
-#### Setup & summary
-
-setup.R 
+#### Summarize data
 
 results_text.R 
 
