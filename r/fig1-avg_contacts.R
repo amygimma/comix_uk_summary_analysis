@@ -1,9 +1,9 @@
 ## Name: fig1_timelines
 ## Description: Show when people responded to the survey
 
-## Input file: dt_1w and dt_2w
-## Functions: bs_group
-## Output file: 2021-03-05_bs_means_2w.qs
+## Input file: bs_means_2w.qs
+## Functions: none
+## Output file: outputs/fig1v3.png
 
 # Packages ----------------------------------------------------------------
 library(data.table)
@@ -40,17 +40,17 @@ age_labs <- c("0-4", "5-17", "18-59", "60+")
 dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
 dt[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other"))]
 
-
-dt[, part_social_group_lab := factor(part_social_group,
-                                     levels = c("All", 
-                                                "A - Upper middle class", 
-                                                "B - Middle class", 
-                                                "C1 - Lower middle class", 
-                                                "C2 - Skilled working class",
-                                                "D - Working class",
-                                                "E - Lower level of subsistence"),
-                                     labels = c("All", "A", "B", "C1", "C2", "D", "E"))]
-
+# 
+# dt[, part_social_group_lab := factor(part_social_group,
+#                                      levels = c("All", 
+#                                                 "A - Upper middle class", 
+#                                                 "B - Middle class", 
+#                                                 "C1 - Lower middle class", 
+#                                                 "C2 - Skilled working class",
+#                                                 "D - Working class",
+#                                                 "E - Lower level of subsistence"),
+#                                      labels = c("All", "A", "B", "C1", "C2", "D", "E"))]
+# 
 
 table(dt$part_att_serious_bin)
 
@@ -82,15 +82,9 @@ plot_mean <- function(dt, time_break = "2 month", upper_limit = 6,
     annotate("rect", 
              xmin = study_dates[3], xmax = study_dates[4],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    # annotate("rect", 
-    #          xmin = study_dates[5], xmax = study_dates[6],
-    #          ymin = 0, ymax = upper_limit, alpha = .1) +
     annotate("rect", 
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    # annotate("rect", 
-    #          xmin = study_dates[9], xmax = study_dates[10],
-    #          ymin = 0, ymax = upper_limit, alpha = .1)  +
     labs(color = "Age (years)", fill = "Age (years)")
 
 }
@@ -98,7 +92,7 @@ plot_mean <- function(dt, time_break = "2 month", upper_limit = 6,
 
 # Plot A overall -------------------------------------------------------------
 all_age <- dt[
-    #part_age_group %in% c("18-59", "60+") &
+    # part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" & 
     part_high_risk == "All" &
     setting == "All"
@@ -124,13 +118,11 @@ contacts_p <- plot_mean(all_age, time_break = "month", upper_limit = 20) +
   annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
   annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
   annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
-  # annotate("text", x = as.Date("2020-12-22"), y = 19.5, label = "Christmas", angle = 0) +
-  # annotate("text", x = as.Date("2020-08-15"), y = 19.5, label = "Reduced\nrestrictions") + 
   ggtitle("A") +
   labs(subtitle = "Adults") #+
 
 contacts_p
-ggsave(contacts_p, filename = "outputs/fig_1A.png", width = 9, height = 4.5)
+# ggsave(contacts_p, filename = "outputs/fig_1A.png", width = 9, height = 4.5)
 
 
 # Plot B: AdultContacts by setting ----------------------------------------------------
@@ -151,7 +143,7 @@ plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6,
       # legend.position = c(0.1,0.9)
       legend.position = "top"
     ) +
-    scale_linetype_manual(name = "Age (years)", values = c(4,1, 2,3)) +
+    scale_linetype_manual(name = "Age (years)", values = c(1,2,3,4)) +
     annotate("rect",
              xmin = study_dates[1], xmax = study_dates[2],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -159,105 +151,11 @@ plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6,
              xmin = study_dates[3], xmax = study_dates[4],
              ymin = 0, ymax = upper_limit, alpha = .1) +
     annotate("rect",
-    #          xmin = study_dates[5], xmax = study_dates[6],
-    #          ymin = 0, ymax = upper_limit, alpha = .1) +
-    # annotate("rect",
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    # annotate("rect",
-    #          xmin = study_dates[9], xmax = study_dates[10],
-    #          ymin = 0, ymax = upper_limit, alpha = .1)  +
     facet_grid(setting ~ .,  scales = "free") +
-    # scale_colour_ggthemr_d() +
     labs(color = "Age (years)", fill = "Age (years)")
 }
-
-
-adults_setting <- dt[
-  part_age_group %in% c("18-59", "60+") &
-  part_gender == "All" &
-    part_social_group == "All" & 
-    part_high_risk == "All" &
-    setting %in% c("Home", "Work/Educ", "Other")
-] 
-
-cols_adult <- cols[3:4]
-
-adults_setting_p <- plot_mean_setting(adults_setting, time_break = "month", upper_limit = 3, cols_ <- cols_adult) +
-  ggtitle("C") 
-  # labs(subtitle = "Age (years)")
-adults_setting_p
-
-
-
-
-# Plot A adults -------------------------------------------------------------
-all_adults <- dt[
-  part_region %in% c("All") &
-  part_age_group %in% c("18-59", "60+") &
-    part_gender == "All" &
-    part_social_group == "All" & 
-    part_high_risk == "All" &
-    setting == "All"
-] 
-
-
-adult_cols <- cols[3:4]
-adults_p <- plot_mean(all_adults, time_break = "month", upper_limit = 6, cols_ = adult_cols) +
-  annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
-  annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
-  annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
-  annotate("text", x = as.Date("2020-12-22"), y = 18.5, label = "Christmas", angle = 0) +
-  annotate("text", x = as.Date("2020-08-15"), y = 18.5, label = "Reduced\nrestrictions") + 
-  ggtitle("A") +
-  labs(subtitle = "Adults") 
-adults_p
-
-
-
-
-
-# Plot B Kids -------------------------------------------------------------
-all_kids <- dt[
-  part_region %in% c("All") &
-    part_age_group %in% c("0-4", "5-17") &
-    part_gender == "All" &
-    part_social_group == "All" & 
-    part_high_risk == "All" &
-    setting == "All"
-] 
-
-
-
-kids_p <- plot_mean(all_kids, time_break = "month", upper_limit = 20) +
-  annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
-  annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
-  annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
-  annotate("text", x = as.Date("2020-12-22"), y = 18.5, label = "Christmas", angle = 0) +
-  annotate("text", x = as.Date("2020-08-15"), y = 18.5, label = "Reduced\nrestrictions") + 
-  ggtitle("B") +
-  labs(subtitle = "Children") +
-  scale_color_ggthemr_d()
-  
-kids_p
-
-
-# Plot B: Child contacts by setting ----------------------------------------------------
-
-child_setting <- dt[
-  part_age_group %in% c("0-4", "5-17") &
-    part_gender == "All" &
-    part_social_group == "All" & 
-    part_high_risk == "All" &
-    setting %in% c("Home", "Work/Educ", "Other")
-] 
-
-child_setting_p <- plot_mean_setting(child_setting, time_break = "month", upper_limit = 4) +
-  ggtitle("D") 
-# labs(subtitle = "Age (years)")
-child_setting_p
-
-
 
 
 # Plot B: All part age contacts by setting ----------------------------------------------------
@@ -275,241 +173,9 @@ all_setting_p <- plot_mean_setting(all_setting, time_break = "month", upper_limi
 # labs(subtitle = "Age (years)")
 all_setting_p
 
-ggsave(all_setting_p, filename = "outputs/all_setting.png", height = 6, width = 9)
+# ggsave(all_setting_p, filename = "outputs/all_setting.png", height = 6, width = 9)
 
 # Plot C: Count data ------------------------------------------------------
-# # Figure 1 survey counts --------------------------------------------------
-dt <- qs::qread('../comix/data/part_min.qs')
-adults_id <- dt[sample_type == "adult" &
-                  !area_3_name %in% c("Scotland", "Northern Ireland", "Wales") &
-                  country == "uk" &
-                  !survey_round %in% c(6,7),]$part_wave_uid
-# 
-panel_count <- dt[part_wave_uid %in% adults_id,
-                  .(start_date = min(date), end_date = max(date), .N), by = .(panel, survey_round)]
-panel_count[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey_round)]
-
-mid_dates <- panel_count[, .(panel, survey_round, mid_date)]
-
-panel_plot <- dcast(panel_count, formula = panel ~ mid_date, value.var = "N", fill = 0)
-
-panel_count[, panel := factor(panel, levels = rev(LETTERS[1:6]))]
-
-
-panel_count[, labmin := fifelse(mid_date %in% c(min(mid_date)),N, NA_integer_), by =(panel)]
-panel_count[, labmax := fifelse(mid_date %in% c(max(mid_date)),N, NA_integer_), by =(panel)]
-panel_count
-counts_adults_p <- ggplot(panel_count) +
-  geom_point(aes(y = panel, x = mid_date, size = N)) +
-  geom_line(aes(y = panel, x = mid_date)) +
-  geom_text(aes(y = panel, x = mid_date, label = labmin), nudge_x = - 10, nudge_y = 0.2, size = 3) +
-  geom_text(aes(y = panel, x = mid_date, label = labmax), nudge_x = +10, nudge_y = 0.2,size = 3) +
-  scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(1000, 1500, 2000)) +
-  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
-  expand_limits(x = expand_dates)  +
-  theme(
-    legend.position = c(0.6, 0.9)
-  ) + 
-  annotate("rect", 
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[5], xmax = study_dates[6],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[9], xmax = study_dates[10],
-           ymin = 0, ymax = 5, alpha = .1)  +
-  theme(legend.direction = "horizontal") +
-  guides(size = guide_legend(title.position = "top", label.position = "top")) +
-  labs(y = "Panel", subtitle = "") +
-  ggtitle("E")
-
-counts_adults_p
-
-
-# Plot D: Counts kids -----------------------------------------------------
-
-# Figure 1 survey counts --------------------------------------------------
-dt <- qs::qread('../comix/data/part_min.qs')
-kids_id <- dt[sample_type == "child" &
-                !area_3_name %in% c("Scotland", "Northern Ireland", "Wales") &
-                country == "uk" &
-                !survey_round %in% c(6,7),]$part_wave_uid
-
-panel_count <- dt[part_wave_uid %in% kids_id, 
-                  .(start_date = min(date), end_date = max(date), .N), by = .(panel, survey_round)]
-panel_count[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey_round)]
-
-panel_plot <- dcast(panel_count, formula = panel ~ mid_date, value.var = "N", fill = 0) 
-
-panel_count[, panel := factor(panel, levels = rev(LETTERS[1:6]))]
-
-
-panel_count[, labmin := fifelse(mid_date %in% c(min(mid_date)),N, NA_integer_), by =(panel)]
-panel_count[, labmax := fifelse(mid_date %in% c(max(mid_date)),N, NA_integer_), by =(panel)]
-panel_count
-counts_kids_p <- ggplot(panel_count) +
-  geom_point(aes(y = panel, x = mid_date, size = N)) +
-  geom_line(aes(y = panel, x = mid_date)) +
-  geom_text(aes(y = panel, x = mid_date, label = labmin), nudge_x = - 10, nudge_y = 0.2, size = 3) +
-  geom_text(aes(y = panel, x = mid_date, label = labmax), nudge_x = +10, nudge_y = 0.2,size = 3) +
-  scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(200, 400, 600)) +
-  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
-  expand_limits(x = expand_dates)  +
-  theme(
-    legend.position = c(0.6, 0.9)
-  ) +  
-  annotate("rect", 
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[5], xmax = study_dates[6],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = 5, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[9], xmax = study_dates[10],
-           ymin = 0, ymax = 5, alpha = .1)  +
-  theme(legend.direction = "horizontal") +
-  guides(size = guide_legend(title.position = "top", label.position = "top")) +
-  labs(y = "Panel", subtitle = "") +
-  ggtitle("F")
-
-counts_kids_p
-
-
-
-
-# 
-# part <- qs::qread("../comix/data/part.qs")
-# part <- part[country == "uk" & sample_type == "adult"]
-# part[, start_date := min(date), by = .(survey_round, country)]
-# part[, end_date := max(date), by = .(survey_round, country)]
-# part[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey_round, country)]
-# 
-
-
-
-# Plot Attendance --------------------------------------------------------------
-pt <- qs::qread("../comix/data/part.qs")
-
-pt <- pt[sample_type == "child" &
-                !area_3_name %in% c("Scotland", "Northern Ireland", "Wales") &
-                country == "uk" &
-                !survey_round %in% c(6,7),]
-
-
-
-
-
-pt[, weekday := weekdays(date)]
-pt[, weekend := weekday %in% c("Saturday", "Sunday")]
-
-map_school_attends <- c(
-  c("closed" = "closed", 
-    "closed - holiday" = "closed holiday",
-    "Don’t know" = "unknown", 
-    "no but open for my child" = "no - open for my child", 
-    "No, but it was open for my child" = "no - open for my child", 
-    "not answered" = "no answer", 
-    "Not applicable as it was a weekend/holiday/day off" = "day off", 
-    "Not applicable as it was closed" = "closed", 
-    "Prefer not to answer" = "no answer",
-    "yes" = "yes", 
-    "Yes" = "yes")
-  
-)
-
-pt[, part_attend_school_yesterday := map_school_attends[part_attend_school_yesterday]]
-
-
-pt_school_all <- pt[part_attend_school_yesterday %in% c("closed", "no - open for my child", "yes")  & weekend == FALSE, 
-                    .(
-                      yes_n = sum(part_attend_school_yesterday == "yes"),
-                      no_n = sum(part_attend_school_yesterday != "yes"),
-                      n = .N,
-                      yes = round(sum(part_attend_school_yesterday == "yes")/.N,2), 
-                      no = round(sum(part_attend_school_yesterday != "yes")/.N,2), 
-                      start_date = min(date), end_date = max(date)), by = survey_round]
-
-
-pt_school_all[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey_round)]
-pt_school_all[, lci := yes - 1.96*sqrt((yes*(1-yes)/n))]
-pt_school_all[, uci := yes + 1.96*sqrt((yes*(1-yes)/n))]
-
-
-attends_p <- ggplot(pt_school_all[], aes(x = mid_date)) +
-  geom_line( aes(y = yes)) +
-  geom_point( aes(y = yes)) +
-  #geom_smooth( aes(y = yes), method = "gam") +
-  #geom_point( aes(y = avg)) +
-  labs(title = "", y = "", x = "") +
-  scale_y_continuous(expand = expansion(0), labels = scales::percent, limits = c(0,1)) +
-  scale_x_date(breaks = "month", date_labels = "%b") +
-  expand_limits(x = expand_dates) + 
-  annotate("rect", 
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = 1, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = 1, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[5], xmax = study_dates[6],
-           ymin = 0, ymax = 1, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = 1, alpha = .1) +
-  annotate("rect", 
-           xmin = study_dates[9], xmax = study_dates[10],
-           ymin = 0, ymax = 1, alpha = .1)  +
-  labs(y = "", x = "", subtitle = "School attendance") +
-  ggtitle("F")
-
-attends_p
-
-
-
-
-
-
-# layout <- "
-# AAAAAABBBBBB
-# AAAAAABBBBBB
-# AAAAAABBBBBB
-# AAAAAABBBBBB
-# CCCCCCDDDDDD 
-# EEEEEEFFFFFF
-# EEEEEEFFFFFF
-# GGGGGGHHHHHH
-# IIIIIIJJJJJJ
-# "
-layout <- "
-AAAAAABBBBBB
-AAAAAABBBBBB
-CCCCCCDDDDDD 
-CCCCCCDDDDDD 
-EEEEEEFFFFFF
-"
-
-# fig1 <- adults_p + kids_p + counts_adults_p + counts_kids_p + adults_setting_p + attends_p + dur_adults_p + dur_kids_p + freq_adults_p + freq_kids_p +   plot_layout(design = layout)
-fig1 <- adults_p + kids_p + adults_setting_p + child_setting_p + counts_adults_p + counts_kids_p +  plot_layout(design = layout)
-
-fig1
-
-qs::qsave(fig1, "outputs/fig1_v2.qs")
-ggsave(fig1, filename = "outputs/fig1_v2.png", height = 12, width = 15, dpi = 350)
-
-
 
 dt <- qs::qread('../comix/data/part_min.qs')
 adults_id <- dt[#sample_type == "adult" &
@@ -551,22 +217,16 @@ counts_all_p <- ggplot(sample_type_count) +
   annotate("rect",
            xmin = study_dates[3], xmax = study_dates[4],
            ymin = 0, ymax = 5, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[5], xmax = study_dates[6],
-  #          ymin = 0, ymax = 5, alpha = .1) +
   annotate("rect",
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = 5, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[9], xmax = study_dates[10],
-  #          ymin = 0, ymax = 5, alpha = .1)  +
   theme(legend.direction = "horizontal") +
   guides(size = guide_legend(title.position = "top", label.position = "top")) +
   labs(y = "Sample Type", subtitle = "") +
   ggtitle("C")
 
 counts_all_p
-ggsave(counts_all_p, filename = "outputs/all_counts.png", width = 9, height  = 4)
+# ggsave(counts_all_p, filename = "outputs/all_counts.png", width = 9, height  = 4)
 
 
 

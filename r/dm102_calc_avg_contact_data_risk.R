@@ -143,7 +143,7 @@ dts <- l_dt[, .(
 # Save data ---------------------------------------------------------------
 sys_date <- Sys.Date()
 filename <- "bs_means_2w_risk.qs"
-file_path <- file.path("data", paste(sys_date,"v2", boots, filename, sep = "_"))
+file_path <- file.path("data", paste(sys_date, boots, filename, sep = "_"))
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
 
