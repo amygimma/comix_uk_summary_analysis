@@ -208,7 +208,6 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     facet_grid(rows = vars(part_age_group_lab)) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-    expand_limits(y = 0) +
     scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
@@ -219,7 +218,6 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
-    # scale_linetype_manual(name = guide_lab, values = c(2,3, 4)) +
     annotate("rect", 
              xmin = study_dates[1], xmax = study_dates[2],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -232,9 +230,6 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     annotate("rect", 
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    # annotate("rect", 
-    #          xmin = study_dates[9], xmax = study_dates[10],
-    #          ymin = 0, ymax = upper_limit, alpha = .1) +
     labs(color = guide_lab, fill = guide_lab) 
   
 }
@@ -265,9 +260,8 @@ hr_p <-
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) #+
-# annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
-# ggtitle("C")
+  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  ggtitle("D")
 hr_p
 
 ggsave(plot = hr_p, filename = "outputs/hr_plots.png", 
