@@ -18,8 +18,13 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
+
 message(paste("read from:", file_path))
 table(dt$boots)
+summary(dt[part_age_group %in% c("60+")]$n)
+hist(dt[part_age_group %in% c("60+")]$n)
+summary(dt[part_age_group %in% c("60+") & part_att_likely_bin == "Agree"]$n)
+summary(dt[part_age_group %in% c("60+") & part_att_serious_bin == "Disagree"]$n)
 
 likert_bin_levels <- c("All", "Agree", "Neutral", "Disagree")
 
@@ -89,7 +94,7 @@ study_dates <- as.Date(c(
   "2020-09-02"
 ))
 
-upper_lim <- 10
+upper_lim <- 9
 ylabel <- upper_lim - 0.75
 timeline_size <- 3
 
@@ -181,6 +186,11 @@ likert_plots <- (att_likely_p / att_spread_p / att_serious_p) + patchwork::plot_
 
 likert_plots
 
+
+
+ggsave(plot = likert_plots, filename = "outputs/likert_plots_age.png", 
+       height = 9, width = 7)
+
 plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month", 
                                  upper_limit = 6, cols_ = c("#d72638", "#055a8c", "#17877b")){
   # browser()
@@ -201,8 +211,9 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      # legend.position = c(0.025, 0.65)
-      legend.position = "top"
+      legend.position = c(0.05, 0.9),
+      legend.direction = "horizontal"
+      # legend.position = "top"
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
@@ -227,9 +238,6 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
 }
 
 
-ggsave(plot = likert_plots, filename = "outputs/likert_plots_age.png", 
-       height = 9, width = 7)
-
 hr_age <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_high_risk != "All" &
@@ -238,10 +246,12 @@ hr_age <- dt[
 ] 
 
 
-upper_lim <- 6
+upper_lim <- 9
 ylabel <- upper_lim - 0.75
 timeline_size <- 3
 
+hr_age[, part_high_risk := 
+         factor(part_high_risk, levels = c("yes", "no"), labels = c("Yes", "No"))]
 hr_lab <- "High risk participant"
 hr_p <- 
   plot_mean_age_by_var(hr_age , 
@@ -249,7 +259,7 @@ hr_p <-
                        guide_lab = hr_lab ,
                        time_break = "month", 
                        upper_limit = upper_lim,
-                       cols_ = cols[c(2,3)]) +
+                       cols_ = cols[c(3,2)]) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
