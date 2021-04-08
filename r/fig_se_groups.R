@@ -11,7 +11,7 @@ source(file.path("r", "functions", "ggthemr_workaround.R"))
 
 # Load data --------------------------------------------------------------
 
-dts <- qs::qread("data/bs_means_2w.qs")
+dts <- qs::qread("data/bs_means_2w_se.qs")
 
 dts[, table(setting)]
 dts[, table(part_age_group, part_gender)]

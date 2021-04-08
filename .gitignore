@@ -11,3 +11,5 @@ outputs/*
 !outputs/readme
 *.qs
 *.csv
+*.png
+*.pdf

@@ -40,9 +40,9 @@ pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
 args <- commandArgs(trailingOnly=TRUE)
 print(args)
 if (length(args) == 1) boots <- as.numeric(args)
-if (!exists("groups")) boots <- 100
+if (!exists("boots")) boots <- 1000
 
-boots <- 1000
+
 dt_boot <- data.table()
 message(paste("Running", boots, "bootstrapped samples"))
 

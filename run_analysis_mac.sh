@@ -3,8 +3,8 @@
 
 if [ -z $1 ]
   then
-  boots=100
-  echo "Running 100 bootstrapped samples, to specify number of samples run with an argument, eg `sh run_analysis_mac 1000`"
+  boots=1000
+  echo "Running 1000 bootstrapped samples, to specify number of samples run with an argument, eg `sh run_analysis_mac 1000`"
 else
   boots=$1
 fi

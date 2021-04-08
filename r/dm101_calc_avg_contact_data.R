@@ -41,7 +41,7 @@ pdt[, part_att_serious_bin := map_likert2[part_att_serious]]
 args <- commandArgs(trailingOnly=TRUE)
 print(args)
 if (length(args) == 1) boots <- as.numeric(args)
-if (!exists("groups")) boots <- 100
+if (!exists("boots")) boots <- 1000
 
 
 dt_boot <- data.table()
@@ -49,40 +49,18 @@ message(paste("Running", boots, "bootstrapped samples"))
 
 
 # Main analysis -----------------------------------------------------------
-## Adults by socio-economic status
-for(i in c("60+", "18-59")){
-  for(j in sort(unique(pdt$part_social_group))){
-    if(!is.na(j)){
-      print(i)
-      print(j)
-      dt1 <- bs_group(pdt, boots, prop = 1.0, soc_group_ = j,  age_ = i)
-
-      dt_boot <- rbind(dt_boot, dt1)
-    }
-  }
-}
-
-## Setting and risk by age
-for(i in c("0-4", "5-17", "18-59", "60+")){
-  print(i)
-    dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All" )
-    dt2 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "yes")
-    dt3 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "no")
-    
-    dt_boot <- rbind(dt_boot, dt1, dt2, dt3)
-}
 
 # Get regions -------------------------------------------------------------
-for(i in c(unique(pdt$area), "England")){
-  print(i)
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
+# for(i in c(unique(pdt$area), "England")){
+#   print(i)
+#   dt1 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All-adults")
+#   dt2 <- bs_group(pdt,  boots, prop = 1.0, area_ = i, age_ = "All")
+#   dt_boot <- rbind(dt_boot, dt1, dt2)
+# }
 
 
-# Get age groups ----------------------------------------------------------
-for(i in c(unique(pdt$part_age_group), "All", "All-adults")){
+# Get age groups ---------------------------------------------------------
+for(i in c("0-4", "5-17", "18-59", "60+")){
   print(i)
   if(!is.na(i)){
     dt1 <- bs_group(pdt,  boots, prop = 1.0, area_ = "All", age = i)
@@ -92,64 +70,13 @@ for(i in c(unique(pdt$part_age_group), "All", "All-adults")){
 
 
 # Get for gender ----------------------------------------------------------
-for(i in c("male", "female")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
+# for(i in c("male", "female")){
+#   dt1 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i,  age_ = "All-adults")
+#   # dt2 <- bs_group(pdt,  boots, prop = 1.0, gender_ = i, age_ = "All")
+#   dt_boot <- rbind(dt_boot, dt1, dt2)
+# }
 
 
-# Get for socioeconomic status ---------------------------------------------
-for(i in unique(pdt$part_social_group)){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-# Get for att_spread status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_spread_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-# Get for att_likely status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_likely_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-# Get for att_serious status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = "All-adults")
-  dt2 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
-
-
-# Get employment status ---------------------------------------------------
-for(i in c("Full time", "Part time", "Self employed")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = "All", employ_ = i, workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1)
-}
-
-# Get income ---------------------------------------------------------------
-for(i in c("<20k","20k-44.9k","45k+")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All", workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1)
-}
-
-
-# Employment within income -------------------------------------------------
-for(i in c("<20k","20k-44.9k","45k+")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Full time", workplace_ = "open", age_ = "All-adults")
-  dt2 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Part time", workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
 
 dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
