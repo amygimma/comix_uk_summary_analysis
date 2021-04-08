@@ -234,7 +234,7 @@ inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
   expand_limits(x = expand_dates) + 
   theme(
     panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.45, 0.9),
+    legend.position = c(0.45, 0.90),
     # legend.position = "none",
     legend.title=element_text(size=12),
     legend.text=element_text(size=10),
@@ -288,6 +288,8 @@ emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
   geom_line( aes(y = mean, col = part_employed)) +
   scale_color_manual(values = cols) +
   scale_fill_manual(values = cols) +
+  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
   guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment")) +
   labs(title = "", y = "Mean contacts", x = "") +
   theme(
