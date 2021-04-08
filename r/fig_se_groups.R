@@ -1,6 +1,6 @@
 ## Create plots of average contacts
 
-library(data.table)
+library(data.table) 
 library(lubridate)
 library(ggplot2)
 library(ggthemr)
@@ -65,6 +65,7 @@ dir.create(paste0("outputs/", plotdate), showWarnings = FALSE)
 
 settings_ <- c("All", "Home", "Work/Educ", "Other")
 
+cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 
 
 # Income work open ---------------------------------------------------------------
@@ -86,8 +87,10 @@ emp_inc_dt <-  dts_rec[
 # emp_inc_dt$part_income <- as.factor(emp_inc_dt$part_income)
 upper_limit <- 10
 emp_inc_p <- ggplot(emp_inc_dt, aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.1) +
-  geom_line( aes(y = mean, col = part_income)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.15) +
+  geom_line( aes(y = mean, col = part_income), alpha = 0.7) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
   #geom_smooth( aes(y = med), method = "gam") +
   #geom_point( aes(y = avg)) +
   labs(title = "", y = "Mean contacts", x = "") +
@@ -103,27 +106,27 @@ emp_inc_p <- ggplot(emp_inc_dt, aes(x = mid_date)) +
     panel.spacing.y =  unit(1, "lines")
   ) +
   guides(fill=guide_legend(title="Income"), col = guide_legend(title="Income")) +
-  scale_colour_ggthemr_d() 
-  
-  
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = factor(part_income)), alpha = 0.1) +
-  geom_line( aes(y = mean, color = factor(part_income))) +
-  scale_colour_ggthemr_d() +
-  # geom_smooth( aes(y = med), method = "gam") +
-  # geom_point( aes(y = avg)) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  facet_wrap(vars(part_employed) , ncol = 1 ) +
-  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  expand_limits(y = 0) +
-  theme(text = element_text(size = 16)) + 
-  scale_x_date(breaks = time_break) +
-  expand_limits(x = expand_dates) + 
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
-    axis.text.x = element_blank(),
-    panel.spacing.y =  unit(1, "lines")
-  ) +
-  guides(fill=guide_legend(title="Income"), col = guide_legend(title="Income"))
+  theme_bw()
+# 
+#   
+#   geom_ribbon(aes(ymin = lci, ymax = uci, fill = factor(part_income)), alpha = 0.1) +
+#   geom_line( aes(y = mean, color = factor(part_income))) +
+#   # scale_colour_ggthemr_d() +
+#   # geom_smooth( aes(y = med), method = "gam") +
+#   # geom_point( aes(y = avg)) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   facet_wrap(vars(part_employed) , ncol = 1 ) +
+#   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+#   expand_limits(y = 0) +
+#   theme(text = element_text(size = 16)) + 
+#   scale_x_date(breaks = time_break) +
+#   expand_limits(x = expand_dates) + 
+#   theme(
+#     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+#     axis.text.x = element_blank(),
+#     panel.spacing.y =  unit(1, "lines")
+#   ) +
+#   guides(fill=guide_legend(title="Income"), col = guide_legend(title="Income"))
 
 emp_inc_p
 ggsave(emp_inc_p, filename = emp_inc_adults_name, width = plot_width, height = 6)
@@ -132,7 +135,7 @@ ggsave(emp_inc_p, filename = emp_inc_adults_name, width = plot_width, height = 6
 # Plot sc adults ------------------------------------------------------------
 sc_adults_name <- paste0("outputs/", plotdate, "/sc_adults_all", plotdate, ".png")
 
-sc_p <-  dts_rec[
+sc_dt <-  dts_rec[
   part_region %in% c("All") &
     part_age_group %in% c("All-adults") &
     part_gender == "All" &
@@ -141,24 +144,25 @@ sc_p <-  dts_rec[
     part_income == "All" & 
     part_work_place == "All" & 
     part_employed == "All" &
-    setting == "All"
-] %>% 
-  ggplot(aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci), alpha = 0.2) +
-  geom_line( aes(y = mean)) +
-  #geom_smooth( aes(y = med), method = "gam") +
-  #geom_point( aes(y = avg)) +
+    setting == "All"]
+ 
+sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_social_group), alpha = 0.2) +
+  geom_line( aes(y = mean, color = part_social_group)) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
   labs(title = "", y = "Mean contacts", x = "") +
   facet_wrap(vars(part_social_group) , ncol = 3 ) +
   scale_y_continuous(expand = expansion(0)) +
   expand_limits(y = 0) +
-  theme(text = element_text(size = 16)) + 
+  # theme(text = element_text(size = 16)) + 
   scale_x_date(breaks = time_break, date_labels = date_labs) +
   expand_limits(x = expand_dates) + 
   theme(
     axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
     panel.spacing.y =  unit(1, "lines")
-  )
+  ) +
+  theme_bw()
 
 sc_p
 ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
@@ -169,7 +173,7 @@ ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
 
 inc_adults_name <- paste0("outputs/", plotdate, "/inc_adults_work", plotdate, ".png")
 
-inc_p <-  dts_rec[
+inc_dt <-  dts_rec[
   part_region %in% c("All") &
     part_age_group %in% c("All-adults") &
     part_gender == "All" &
@@ -178,25 +182,27 @@ inc_p <-  dts_rec[
     part_income != "All" & 
     part_work_place == "open" & 
     part_employed == "All" &
-    setting == "Work"
-] %>% 
-  ggplot(aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.1) +
+    setting == "Work"]
+ 
+inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.15) +
   geom_line( aes(y = mean, col = part_income)) +
-  #geom_smooth( aes(y = med), method = "gam") +
-  #geom_point( aes(y = avg)) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
   labs(title = "", y = "Mean contacts", x = "") +
   scale_y_continuous(expand = expansion(0)) +
   expand_limits(y = 0) +
   theme(text = element_text(size = 16)) + 
   scale_x_date(breaks = time_break, date_labels = date_labs) +
   expand_limits(x = expand_dates) + 
+  # facet_grid(rows = vars(part_income)) +
   theme(
     #axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
     axis.text.x = element_blank(),
     panel.spacing.y =  unit(1, "lines")
   ) +
-  guides(fill=guide_legend(title="Income"), col = guide_legend(title="Income"))
+  guides(fill=guide_legend(title="Income"), col = guide_legend(title="Income")) +
+  theme_bw()
 
 inc_p
 ggsave(inc_p, filename = inc_adults_name, width = plot_width, height = 6)
@@ -205,7 +211,7 @@ ggsave(inc_p, filename = inc_adults_name, width = plot_width, height = 6)
 
 emp_adults_name <- paste0("outputs/", plotdate, "/emp_adults_work", plotdate, ".png")
 
-emp_p <-  dts_rec[
+emp_dt <-  dts_rec[
   part_region %in% c("All") &
     part_age_group %in% c("All-adults") &
     part_gender == "All" &
@@ -215,12 +221,14 @@ emp_p <-  dts_rec[
     part_work_place == "open" & 
     part_employed != "All" &
     setting == "Work"
-] %>% 
-  ggplot(aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_employed), alpha = 0.1) +
+] 
+  
+  
+emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_employed), alpha = 0.2) +
   geom_line( aes(y = mean, col = part_employed)) +
-  #geom_smooth( aes(y = med), method = "gam") +
-  #geom_point( aes(y = avg)) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
   labs(title = "", y = "Mean contacts", x = "") +
   scale_y_continuous(expand = expansion(0)) +
   expand_limits(y = 0) +
@@ -232,7 +240,8 @@ emp_p <-  dts_rec[
     axis.text.x = element_blank(),
     panel.spacing.y =  unit(1, "lines")
   ) +
-  guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment"))
+  guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment")) +
+  theme_bw()
 
 emp_p
 ggsave(emp_p, filename = emp_adults_name, width = plot_width, height = 6)
@@ -241,7 +250,7 @@ ggsave(emp_p, filename = emp_adults_name, width = plot_width, height = 6)
 
 emp_inc_adults_name <- paste0("outputs/", plotdate, "/emp_inc_adults_work", plotdate, ".png")
 
-emp_inc_p <-  dts_rec[
+emp_inc_dt <-  dts_rec[
   part_region %in% c("All") &
     part_age_group %in% c("All-adults") &
     part_gender == "All" &
@@ -251,12 +260,13 @@ emp_inc_p <-  dts_rec[
     part_work_place == "open" & 
     part_employed != "All" &
     setting == "Work"
-] %>% 
-  ggplot(aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.1) +
-  geom_line( aes(y = mean, col = part_income)) +
-  #geom_smooth( aes(y = med), method = "gam") +
-  #geom_point( aes(y = avg)) +
+] 
+emp_inc_p <-
+  ggplot(emp_inc_dt, aes(x = mid_date)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.2) +
+  geom_line( aes(y = mean, col = part_income), alpha = 0.8) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
   labs(title = "", y = "Mean contacts", x = "") +
   facet_wrap(vars(part_employed) , ncol = 1 ) +
   scale_y_continuous(expand = expansion(0)) +
@@ -316,8 +326,8 @@ hr_adults_name <- paste0("outputs/", plotdate, "/hr_adults_all", plotdate, ".png
 grp_adults_name <- paste0("outputs/", plotdate, "/group_adults_all", plotdate, ".png")
 library(patchwork)
 
-group_plot <- (emp_p + ggtitle("A")) / (inc_p + ggtitle("B")) / (emp_inc_p + ggtitle("C")) + plot_layout(heights = c(1,1,2.3))
-
+group_plot <- ((emp_p + ggtitle("A")) / (inc_p + ggtitle("B"))) + plot_layout()
+group_plot
 
 # ggsave(group_plot, filename = grp_adults_name, width = plot_width, height = 12)
 
