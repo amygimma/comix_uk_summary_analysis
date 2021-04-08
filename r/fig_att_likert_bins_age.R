@@ -18,6 +18,8 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
+dt[, part_age_group_lab := paste("Ages", part_age_group)]
+
 
 message(paste("read from:", file_path))
 table(dt$boots)
@@ -40,8 +42,6 @@ expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
 # Create plotting function ------------------------------------------------
 plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month", 
                              upper_limit = 6, cols_ = c("#d72638", "#055a8c", "#17877b")){
-  # browser()
-  
   ggplot(dt, aes(x = mid_date)) +
     geom_ribbon(aes(ymin = lci, ymax = uci, group = get(var), fill = get(var)), alpha = 0.3) +
     geom_line( aes(y = mean, linetype = get(var), color = get(var))) +
@@ -52,11 +52,13 @@ plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month",
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.025, 0.8)
+      legend.position = c(0.025, 0.85),
+      legend.title=element_text(size=9),
+      legend.text=element_text(size=8)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
-    facet_grid(vars(part_age_group)) +
+    facet_grid(vars(part_age_group_lab)) +
     scale_linetype_manual(name = guide_lab, values = c(2,3, 4)) +
     annotate("rect", 
              xmin = study_dates[1], xmax = study_dates[2],
@@ -95,8 +97,8 @@ study_dates <- as.Date(c(
 ))
 
 upper_lim <- 9
-ylabel <- upper_lim - 0.75
-timeline_size <- 3
+ylabel <- upper_lim - 0.35
+timeline_size <- 2.5
 
 
 all_likely <- dt[
@@ -211,9 +213,9 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.05, 0.9),
-      legend.direction = "horizontal"
-      # legend.position = "top"
+      legend.position = c(0.025, 0.85),
+      legend.title=element_text(size=9),
+      legend.text=element_text(size=8)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
