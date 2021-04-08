@@ -52,7 +52,7 @@ message(paste("Running", boots, "bootstrapped samples"))
 ## Setting and risk by age
 for(i in c("0-4", "5-17", "18-59", "60+")){
   print(i)
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All" )
+  dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "All" )
   dt2 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "yes")
   dt3 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "no")
   

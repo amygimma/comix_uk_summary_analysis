@@ -19,6 +19,7 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
 message(paste("read from:", file_path))
+table(dt$boots)
 
 likert_bin_levels <- c("All", "Agree", "Neutral", "Disagree")
 
@@ -102,7 +103,7 @@ all_likely <- dt[
     part_att_likely_bin != "All" &
     part_att_serious_bin == "All"
 ] 
-table(all_likely$part_att_likely_bin)
+# table(all_likely$part_att_likely_bin)
 
 likely_lab <- "I am likely to catch coronavirus"
 att_likely_p <- 

@@ -24,6 +24,7 @@ message(paste("read from:", file_path))
 
 nrow(dt)
 dt <- dt[part_age_group %in% c("0-4", "5-17", "18-59", "60+")]
+table(dt$boots)
 
 
 # Create folder for plots -------------------------------------------------
@@ -140,8 +141,8 @@ plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6,
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      # legend.position = c(0.1,0.9)
-      legend.position = "top"
+      legend.position = c(0.05, 0.95),
+      legend.direction = "horizontal"
     ) +
     scale_linetype_manual(name = "Age (years)", values = c(1,2,3,4)) +
     annotate("rect",
@@ -169,6 +170,9 @@ all_setting <- dt[
 ] 
 
 all_setting_p <- plot_mean_setting(all_setting, time_break = "month", upper_limit = 5) +
+  # annotate("text", x = as.Date("2020-05-01"), y = 4.5, label = "Lockdown 1 (LD 1)") +
+  # annotate("text", x = as.Date("2020-11-15"), y = 4.5, label = "LD 2") +
+  # annotate("text", x = as.Date("2021-01-30"), y = 4.5, label = "LD 3") +
   ggtitle("B") 
 # labs(subtitle = "Age (years)")
 all_setting_p
@@ -195,7 +199,7 @@ sample_type_count[, sample_type := ifelse(sample_type == "child", "Child", "Adul
 
 sample_type_count[, sample_type := factor(sample_type)]
 
-
+sample_type_count[, sample_type := forcats::fct_relevel(sample_type, rev)]
 sample_type_count[, labmin := fifelse(mid_date %in% c(min(mid_date)),N, NA_integer_), by =(sample_type)]
 sample_type_count[, labmax := fifelse(mid_date %in% c(max(mid_date)),N, NA_integer_), by =(sample_type)]
 sample_type_count[, Recruitment := ifelse(survey_round < 20, "First", "Second")]
@@ -208,9 +212,6 @@ counts_all_p <- ggplot(sample_type_count) +
   scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(1000, 1500, 2000)) +
   scale_x_date(breaks = "month", date_labels = "%b", name = "") +
   expand_limits(x = expand_dates)  +
-  theme(
-    legend.position = c(0.6, 0.9)
-  ) + 
   annotate("rect",
            xmin = study_dates[1], xmax = study_dates[2],
            ymin = 0, ymax = 5, alpha = .1) +
@@ -220,14 +221,75 @@ counts_all_p <- ggplot(sample_type_count) +
   annotate("rect",
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = 5, alpha = .1) +
-  theme(legend.direction = "horizontal") +
-  guides(size = guide_legend(title.position = "top", label.position = "top")) +
+  theme(legend.direction = "horizontal", 
+        legend.position = c(0.6, 0.9)) +
+  # guides(size = guide_legend(title.position = "top", label.position = "top")) +
   labs(y = "Sample Type", subtitle = "") +
   ggtitle("C")
 
 counts_all_p
-# ggsave(counts_all_p, filename = "outputs/all_counts.png", width = 9, height  = 4)
 
+dt <- qs::qread('../comix/data/part_min.qs')
+adults_id <- dt[#sample_type == "adult" &
+  !area_3_name %in% c("Scotland", "Northern Ireland", "Wales") &
+    country == "uk" &
+    !survey_round %in% c(6,7),]$part_wave_uid
+# 
+sample_type_count <- dt[part_wave_uid %in% adults_id,
+                        .(start_date = min(date), end_date = max(date), .N), by = .(sample_type, survey_round, panel)]
+sample_type_count[, mid_date := start_date + floor((end_date - start_date)/2) , by = .(survey_round, panel)]
+
+mid_dates <- sample_type_count[, .(sample_type, survey_round, mid_date, panel)]
+
+sample_type_plot <- dcast(sample_type_count, formula = sample_type + panel ~ mid_date, value.var = "N", fill = 0)
+
+sample_type_count[, sample_type := ifelse(sample_type == "child", "Child", "Adult")]
+
+sample_type_count[, sample_type := factor(sample_type)]
+sample_type_count[, Recruitment := ifelse(survey_round < 20, "First", "Second")]
+# sample_type_count[, Recruitment := NA_character_]
+# sample_type_count[, Recruitment := ifelse(panel %in% c("A", "C") & survey_round < 20, "First", Recruitment)]
+# sample_type_count[, Recruitment := ifelse(panel %in% c("B", "D") & survey_round < 20, "Second", Recruitment)]
+# sample_type_count[, Recruitment := ifelse(panel %in% c("E") & survey_round >= 20, "Third", Recruitment)]
+# sample_type_count[, Recruitment := ifelse(panel %in% c("F") & survey_round >= 20, "Fourth", Recruitment)]
+# sample_type_count[, Recruitment := factor(Recruitment, levels = c("First", "Second", "Third", "Fourth"))]
+# table(sample_type_count$Recruitment)
+# ggsave(counts_all_p, filename = "outputs/all_counts.png", width = 9, height  = 4)
+counts_all_p_line <- ggplot(sample_type_count) +
+  geom_point(aes(y = N, x = mid_date,  color = sample_type)) +
+  geom_line(aes(y = N, x = mid_date,  color = sample_type, linetype = factor(Recruitment))) +
+  # geom_line(aes(y = N, x = mid_date,  color = sample_type)) +
+  
+  scale_color_manual(values = cols, name = "Sample Type") +
+  scale_linetype_manual(values = c(1,2,3,4), name = "Recruitment") +
+  # scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(1000, 1500, 2000)) +
+  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
+  expand_limits(x = expand_dates, y = c(0,3500))  +
+  scale_y_continuous(breaks = seq(0,3500,500)) +
+  # expand_limits(x = expand_dates, y = c(0,2800))  +
+  annotate("rect",
+           xmin = study_dates[1], xmax = study_dates[2],
+           ymin = 0, ymax = 3500, alpha = .1) +
+  annotate("rect",
+           xmin = study_dates[3], xmax = study_dates[4],
+           ymin = 0, ymax = 3500, alpha = .1) +
+  annotate("rect",
+           xmin = study_dates[7], xmax = study_dates[8],
+           ymin = 0, ymax = 3500, alpha = .1) +
+  theme(
+    legend.direction = "horizontal",
+    legend.position = c(0.05, 0.80)) +
+  labs(y = "Number of participants", subtitle = "") +
+  ggtitle("C")
+counts_all_p_line 
+ggsave(counts_all_p_line, filename = "outputs/counts_linel.png", height = 4, width = 9)
+
+
+counts_all_p_col <- ggplot(sample_type_count) +
+  geom_col(aes(y = N, x = mid_date,  fill = sample_type, group = sample_type),position = position_dodge2(width = 5, preserve = "single"))
+ 
+counts_all_p_col
+ggsave(counts_all_p_col, filename = "outputs/counts_col.png", height = 4, width = 9)
 
 
 
@@ -241,7 +303,7 @@ CCCCCCCCCCCC
 "
 
 
-fig1v3 <- (contacts_p / all_setting_p / counts_all_p) + plot_layout(design = layout)
+fig1v3 <- (contacts_p / all_setting_p / counts_all_p_line) + plot_layout(design = layout)
 fig1v3 
 
 ggsave(fig1v3, filename = "outputs/fig1v3.png", width = 9 , height = 11)
