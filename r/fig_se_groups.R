@@ -146,7 +146,6 @@ ggsave(emp_inc_p, filename = emp_inc_adults_name, width = 9, height = 6)
 
 
 # Plot sc adults ------------------------------------------------------------
-sc_adults_name <- paste0("outputs/", plotdate, "/sc_adults_all", plotdate, ".png")
 
 sc_dt <-  dts_rec[
   part_region %in% c("All") &
@@ -187,18 +186,19 @@ sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
   annotate("rect",
            xmin = study_dates[3], xmax = study_dates[4],
            ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[5], xmax = study_dates[6],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
+  # annotate("rect",
+  #          xmin = study_dates[5], xmax = study_dates[6],
+  #          ymin = 0, ymax = upper_limit, alpha = .1) +
   annotate("rect",
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = upper_limit, alpha = .1) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
+  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
   # ggtitle("A")
 sc_p
+sc_adults_name <- "outputs/sc_adults_all.png"
 ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
 
 
@@ -224,7 +224,7 @@ timeline_size <- 2.5
 inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
   geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.15) +
   geom_line( aes(y = mean, col = part_income)) +
-  facet_grid( rows = vars(part_income)) +
+  # facet_grid( rows = vars(part_income)) +
   scale_color_manual(values = cols) +
   scale_fill_manual(values = cols) +
   labs(title = "", y = "Mean contacts", x = "") +
@@ -234,7 +234,7 @@ inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
   expand_limits(x = expand_dates) + 
   theme(
     panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.45, 0.90),
+    legend.position = c(0.45, 0.80),
     # legend.position = "none",
     legend.title=element_text(size=12),
     legend.text=element_text(size=10),
@@ -379,10 +379,10 @@ ggsave(emp_inc_p, filename = emp_inc_adults_name, width = plot_width, height = 6
 
 
 # Group plots -------------------------------------------------------------
-grp_adults_name <-"outputs/group_adults_all.png"
-group_plot <- ((emp_p + ggtitle("A")) / (inc_p + ggtitle("B"))) + plot_layout(height = c(1,2))
+grp_adults_name <-"outputs/se_adults_all.png"
+group_plot <- ((emp_p + ggtitle("A")) / (inc_p + ggtitle("B"))) + plot_layout()
 group_plot
 
-ggsave(group_plot, filename = grp_adults_name, width = 9, height = 9)
+ggsave(group_plot, filename = grp_adults_name, width = 9, height = 6)
 
 

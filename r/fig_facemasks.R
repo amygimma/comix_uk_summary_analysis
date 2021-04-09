@@ -34,7 +34,7 @@ plot_fm_prop <- function(dt, time_break = "2 month", upper_limit = 1){
                     fill = part_age_group), alpha = 0.3) +
     geom_line( aes(y = mean, linetype = participants, 
                    color = part_age_group)) +
-    labs(title = "", y = "Mean contacts", x = "") +
+    labs(title = "", y = "Proportion of participants", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     expand_limits(y = 0) +
     scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
@@ -45,7 +45,7 @@ plot_fm_prop <- function(dt, time_break = "2 month", upper_limit = 1){
     ) +
     scale_color_manual(values = cols) +
     scale_fill_manual(values = cols) +
-    scale_linetype_manual(name = "Participants", values = c(3,2)) +
+    scale_linetype_manual(name = "Participants", values = c(2,1)) +
     annotate("rect", 
              xmin = study_dates[1], xmax = study_dates[2],
              ymin = 0, ymax = upper_limit, alpha = .1) +

@@ -61,7 +61,7 @@ dt <- part
 
 # Attitudes ---------------------------------------------------------------
 cols_1 <- c('#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac')
-
+cols_1 <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 plotter_lk <- function(var, lab, cols_ = cols_1) {
   # browser()
   p1 <- dt[ !is.na(get(var))& !get(var) %in% c("no answer", "Don’t know", "unknown")]
@@ -87,19 +87,19 @@ plotter_lk <- function(var, lab, cols_ = cols_1) {
 
 
 lk_spread_p  <- plotter_lk("part_att_spread_bin", 
-                           lab = 'A. "I am worried that I might spread coronavirus to someone who is vulnerable"') 
+                           lab = 'A. I am worried that I might spread coronavirus to someone who is vulnerable') 
 lk_likely_p  <- plotter_lk("part_att_likely_bin",  
-                           lab = 'B. "I am likely to catch coronavirus"')
+                           lab = 'B. I am likely to catch coronavirus')
 lk_serious_p <- plotter_lk("part_att_serious_bin",
-                           lab = 'C. "Coronavirus would be a serious illness for me"')
+                           lab = 'C. Coronavirus would be a serious illness for me')
 lk_hr_p      <- plotter_lk("part_high_risk",  lab = "D. High risk participant", cols_ = c(cols_1[1], cols_1[5]))
 
 
 perc_proportions <- (lk_spread_p + lk_likely_p + lk_serious_p + lk_hr_p ) +
   plot_layout()
 
-ggsave(plot = perc_proportions, filename = "outputs/perception_proportions.png",
-       height = 10, width = 12)
+# ggsave(plot = perc_proportions, filename = "outputs/perception_proportions.png",
+       # height = 10, width = 12)
 
 
 

@@ -24,9 +24,9 @@ dt[, part_age_group_lab := paste("Ages", part_age_group)]
 message(paste("read from:", file_path))
 table(dt$boots)
 summary(dt[part_age_group %in% c("60+")]$n)
-hist(dt[part_age_group %in% c("60+")]$n)
-summary(dt[part_age_group %in% c("60+") & part_att_likely_bin == "Agree"]$n)
-summary(dt[part_age_group %in% c("60+") & part_att_serious_bin == "Disagree"]$n)
+# hist(dt[part_age_group %in% c("60+")]$n)
+# summary(dt[part_age_group %in% c("60+") & part_att_likely_bin == "Agree"]$n)
+# summary(dt[part_age_group %in% c("60+") & part_att_serious_bin == "Disagree"]$n)
 
 likert_bin_levels <- c("All", "Agree", "Neutral", "Disagree")
 
@@ -44,7 +44,7 @@ plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month",
                              upper_limit = 6, cols_ = c("#d72638", "#055a8c", "#17877b")){
   ggplot(dt, aes(x = mid_date)) +
     geom_ribbon(aes(ymin = lci, ymax = uci, group = get(var), fill = get(var)), alpha = 0.3) +
-    geom_line( aes(y = mean, linetype = get(var), color = get(var))) +
+    geom_line( aes(y = mean,   color = get(var))) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     expand_limits(y = 0) +
@@ -66,9 +66,9 @@ plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month",
     annotate("rect", 
              xmin = study_dates[3], xmax = study_dates[4],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[5], xmax = study_dates[6],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
+    # annotate("rect", 
+    #          xmin = study_dates[5], xmax = study_dates[6],
+    #          ymin = 0, ymax = upper_limit, alpha = .1) +
     annotate("rect", 
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -123,7 +123,7 @@ att_likely_p <-
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   ggtitle("A") 
 
 att_likely_p 
@@ -153,7 +153,7 @@ att_spread_p <-
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
   ggtitle("B") 
 att_spread_p 
@@ -179,7 +179,7 @@ att_serious_p <-
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
   ggtitle("C")
 att_serious_p 
@@ -224,9 +224,9 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     annotate("rect", 
              xmin = study_dates[3], xmax = study_dates[4],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[5], xmax = study_dates[6],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
+    # annotate("rect", 
+    #          xmin = study_dates[5], xmax = study_dates[6],
+    #          ymin = 0, ymax = upper_limit, alpha = .1) +
     annotate("rect", 
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -245,7 +245,7 @@ hr_age <- dt[
 
 upper_lim <- 9
 ylabel <- upper_lim - 0.75
-timeline_size <- 3
+timeline_size <- 2.5
 
 hr_age[, part_high_risk := 
          factor(part_high_risk, levels = c("yes", "no"), labels = c("Yes", "No"))]
@@ -260,7 +260,7 @@ hr_p <-
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   ggtitle("D")
 hr_p
 
