@@ -85,21 +85,26 @@ plotter_lk <- function(var, lab, cols_ = cols_1) {
     labs(x = "", y = "", subtitle = lab) 
 }
 
-
+cols <- cols_1[c(5,1,6)]
 lk_spread_p  <- plotter_lk("part_att_spread_bin", 
-                           lab = 'A. I am worried that I might spread coronavirus to someone who is vulnerable') 
+                           lab = 'A. I am worried that I might spread coronavirus to someone who is vulnerable',
+                           cols_ = cols) 
 lk_likely_p  <- plotter_lk("part_att_likely_bin",  
-                           lab = 'B. I am likely to catch coronavirus')
+                           lab = 'B. I am likely to catch coronavirus', 
+                           cols_ = cols)
 lk_serious_p <- plotter_lk("part_att_serious_bin",
-                           lab = 'C. Coronavirus would be a serious illness for me')
-lk_hr_p      <- plotter_lk("part_high_risk",  lab = "D. High risk participant", cols_ = c(cols_1[1], cols_1[5]))
+                           lab = 'C. Coronavirus would be a serious illness for me',
+                           cols_ = cols)
+cols <- c(cols_1[c(6,5)])
+lk_hr_p      <- plotter_lk("part_high_risk",  lab = "D. High risk participant", 
+                           cols_ =  cols)
 
 
 perc_proportions <- (lk_spread_p + lk_likely_p + lk_serious_p + lk_hr_p ) +
   plot_layout()
 
-# ggsave(plot = perc_proportions, filename = "outputs/perception_proportions.png",
-       # height = 10, width = 12)
+ggsave(plot = perc_proportions, filename = "outputs/perception_proportions_c2.png",
+height = 10, width = 12)
 
 
 
