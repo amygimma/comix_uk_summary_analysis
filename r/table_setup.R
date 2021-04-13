@@ -48,7 +48,7 @@ contacts <- add_england_col(contacts)
 
 # Lock to wave E/F 12 and before ------------------
 
-end_date <- "2021-03-02"
+end_date <- "2021-03-29"
 part <- part[date <= as.Date(end_date)]
 contacts <- contacts[date <= as.Date(end_date)]
 
@@ -64,7 +64,7 @@ part[, survey_phase := fifelse(
 # Add study period column ------------------
 if (!exists("study_period_type")) study_period_type <- "table"
 if (study_period_type == "figure") {
-part[between(date, as.Date("2020-03-23"), as.Date("2020-06-03")),
+part[between(date, as.Date("2020-03-29"), as.Date("2020-06-03")),
      study_period := "Lockdown 1"]
 part[between(date, as.Date("2020-07-30"), as.Date("2020-09-03")),
      study_period := "Reduced restrictions"]
@@ -116,12 +116,11 @@ part[, hh_size_group := fcase(
   is.na(hh_size), "Unknown"
 )]
 
-# Relabel gender_nb ------------------
-table(part[panel == "E" & wave == 11]$part_gender_nb, useNA = "always")
+# Relabel gender ------------------
+table(part[panel == "E" & wave == 11]$part_gender, useNA = "always")
 
-part[panel == "E" & wave == 11, part_gender_nb := part_gender]
-part[, part_gender_nb := str_to_sentence(part_gender_nb)]
-part[is.na(part_gender_nb), part_gender_nb := "Other"]
+part[, part_gender := str_to_sentence(part_gender)]
+part[is.na(part_gender), part_gender := "Other"]
 
 # Set unknown age groups in parent panels
 
