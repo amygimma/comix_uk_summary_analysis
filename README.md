@@ -4,6 +4,14 @@
 
 Will fill out this section
 
+#### Installing dependencies
+
+```
+install.packages("drat")
+drat:::add("epiforecasts")
+install.packages("covidregionaldata")
+```
+
 #### Getting data
 
 Zenodo descpription or summary of other published dataset

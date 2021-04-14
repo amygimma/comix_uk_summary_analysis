@@ -9,6 +9,8 @@ library(data.table)
 
 part <- qs::qread("../comix/data/part.qs")
 contacts <- qs::qread("../comix/data/contacts.qs")
+households <- qs::qread("../comix/data/households.qs")
+
 
 
 adults_id <- part[
@@ -41,7 +43,7 @@ part[, table(sample_type)]
 nadult <- length(unique(part[sample_type == "adult"]$part_id))
 nchild <- length(unique(part[sample_type == "child"]$part_id))
 
-parttext1 <- "Overall, we recorded %d observations from %d participants who reported %d contacts over a period of %d weeks (%s to %s). %d of the particiapants were children's contacts, and %d for adults."
+parttext1 <- "Overall, we recorded %d observations from %d participants who reported %d contacts over a period of %d weeks (%s to %s). %d of the participants were children's contacts, and %d for adults."
 
 t1 <- sprintf(parttext1, obs, npart, ncontact , nweeks,  mindate, maxdate, nchild, nadult)
 
@@ -121,7 +123,7 @@ c2de_ <- sum(psg$part_social_group %in% c("C2 - Skilled working class", "D - Wor
 c2de_per <- c2de_/npart*100
 
 
-parttext4 <- "%d (%1.1f%%) of Participants were categorised as middle class (ABC1) and %d (%1.1f%%) was categorised as working class." 
+parttext4 <- "%d (%1.1f%%) of Participants were categorised as middle class (ABC1) and %d (%1.1f%%) were categorised as working class." 
 
 t4 <- sprintf(parttext4, abc1_, abc1_per, c2de_, c2de_per)
 
@@ -129,5 +131,17 @@ t4
 prop.table(table(psg$part_social_group))
 
 
+
+
+# Assign household sizes for missing values
+hh <- hh[part_wave_uid %in% part$part_wave_uid]
+hh_totals <- hh[, .(hh_size = .N), by = c("country", "panel", "wave", "part_wave_uid")]
+na_hhs <- hh[is.na(hh_size)]
+message(paste("Assigning NA hh sizes: ", nrow(part[is.na(hh_size)])))
+part[is.na(hh_size), hh_size := 
+       unlist(lapply(part_wave_uid, match_hh_size, hh_total_dt = hh_totals))]
+table(part$hh_size, useNA = "always")
+
 summary(part[,mean(hh_size), by = survey_round][order(survey_round)])
+
   

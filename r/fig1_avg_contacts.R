@@ -21,6 +21,7 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 file_path <- file.path("data", "bs_means_2w.qs")
 dt <- qs::qread(file_path)
 message(paste("read from:", file_path))
+cases <- fread(file.path("data", "epiforecasts_cases_hospitilizations.csv"))
 
 nrow(dt)
 dt <- dt[part_age_group %in% c("0-4", "5-17", "18-59", "60+")]
@@ -69,7 +70,7 @@ plot_mean <- function(dt, time_break = "2 month", upper_limit = 6,
     scale_fill_manual(values = cols_) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-    expand_limits(y = 0) +
+    # expand_limits(y = 0) +
     scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
@@ -115,12 +116,10 @@ study_dates <- as.Date(c(
 
 second_recruitment_date <- "2020-08-09"
 
-contacts_p <- plot_mean(all_age, time_break = "month", upper_limit = 20) +
-  annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
-  annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
-  annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
-  ggtitle("A") +
-  labs(subtitle = "Adults") #+
+contacts_p <- plot_mean(all_age, time_break = "month", upper_limit = 20) 
+  # annotate("text", x = as.Date("2020-05-01"), y = 19.5, label = "Lockdown 1 (LD 1)") +
+  # annotate("text", x = as.Date("2020-11-15"), y = 19.5, label = "LD 2") +
+  # annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
 
 contacts_p
 # ggsave(contacts_p, filename = "outputs/fig_1A.png", width = 9, height = 4.5)
@@ -169,11 +168,10 @@ all_setting <- dt[
     setting %in% c("Home", "Work/Educ", "Other")
 ] 
 
-all_setting_p <- plot_mean_setting(all_setting, time_break = "month", upper_limit = 5) +
+all_setting_p <- plot_mean_setting(all_setting, time_break = "month", upper_limit = 5) 
   # annotate("text", x = as.Date("2020-05-01"), y = 4.5, label = "Lockdown 1 (LD 1)") +
   # annotate("text", x = as.Date("2020-11-15"), y = 4.5, label = "LD 2") +
-  # annotate("text", x = as.Date("2021-01-30"), y = 4.5, label = "LD 3") +
-  ggtitle("B") 
+  # annotate("text", x = as.Date("2021-01-30"), y = 4.5, label = "LD 3") 
 # labs(subtitle = "Age (years)")
 all_setting_p
 
@@ -279,8 +277,8 @@ counts_all_p_line <- ggplot(sample_type_count) +
   theme(
     legend.direction = "horizontal",
     legend.position = c(0.05, 0.80)) +
-  labs(y = "Number of participants", subtitle = "") +
-  ggtitle("C")
+  labs(y = "Number of participants", subtitle = "")
+
 counts_all_p_line 
 ggsave(counts_all_p_line, filename = "outputs/counts_linel.png", height = 4, width = 9)
 
@@ -291,19 +289,75 @@ counts_all_p_col <- ggplot(sample_type_count) +
 counts_all_p_col
 ggsave(counts_all_p_col, filename = "outputs/counts_col.png", height = 4, width = 9)
 
+# Plot hospitalisations ----------------------------------------
+theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
+theme_cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
+time_break <- "2 month"
+tsize <- 3
+upper_limit <- round(max(cases$hosp_new, na.rm = TRUE) + 100, digits = -2)
+
+hosp_p <- ggplot(cases) +
+  geom_col(aes(x= date, y = hosp_new), color = theme_cols[3]) +
+  expand_limits(x = expand_dates) +
+  # scale_color_manual(values = theme_cols) +
+  # scale_fill_manual(values = theme_cols) +
+  expand_limits(y = 0) +
+  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  theme(
+    panel.spacing.y =  unit(1, "lines"),
+    legend.position = c(0.1,0.7)
+  ) +
+  annotate("rect", 
+           xmin = study_dates[1], xmax = study_dates[2],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  annotate("rect", 
+           xmin = study_dates[3], xmax = study_dates[4],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  annotate("rect", 
+           xmin = study_dates[7], xmax = study_dates[8],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  labs(y = "Hospitalisations") +
+  annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 150, label = "Lockdown 1 (LD 1)") +
+  annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 150, label = "LD 2") +
+  annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 150, label = "LD 3") 
+
+hosp_p
 
 
-layout <- "
-AAAAAAAAAAAA
-AAAAAAAAAAAA
-BBBBBBBBBBBB
-BBBBBBBBBBBB
-BBBBBBBBBBBB
-CCCCCCCCCCCC
-"
+# Plot cases ----------------------------------------
+# upper_limit <- round(max(cases$cases_new, na.rm = TRUE) + 100, digits = -2)
+# cases_p <- ggplot(cases) +
+#   geom_col(aes(x= date, y = cases_new), color = theme_cols[3]) +
+#   xlim(expand_dates) +
+#   # scale_color_manual(values = theme_cols) +
+#   # scale_fill_manual(values = theme_cols) +
+#   expand_limits(y = 0) +
+#   scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+#   theme(
+#     panel.spacing.y =  unit(1, "lines"),
+#     legend.position = c(0.1,0.7)
+#   ) +
+#   annotate("rect", 
+#            xmin = study_dates[1], xmax = study_dates[2],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect", 
+#            xmin = study_dates[3], xmax = study_dates[4],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect", 
+#            xmin = study_dates[7], xmax = study_dates[8],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   labs(y = "Cases") +
+#   annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 2000, label = "Lockdown 1 (LD 1)") +
+#   annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 2000, label = "LD 2") +
+#   annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 2000, label = "LD 3") 
+# 
+# cases_p
 
+fig1v4 <- ((hosp_p + ggtitle("A")) / 
+             (contacts_p + ggtitle("B")) / 
+             (all_setting_p + ggtitle("C")) / 
+             (counts_all_p_line + ggtitle("D"))) + 
+  plot_layout(heights = c(2,2,3,1))
+fig1v4
 
-fig1v3 <- (contacts_p / all_setting_p / counts_all_p_line) + plot_layout(design = layout)
-fig1v3 
-
-ggsave(fig1v3, filename = "outputs/fig1v3.png", width = 9 , height = 11)
+ggsave(fig1v4, filename = "outputs/fig1v4.png", width = 11 , height = 13)

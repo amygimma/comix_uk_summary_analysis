@@ -17,11 +17,7 @@ contacts <- qread(file.path(data_path, "contacts.qs"))
 
 hh <- qread(file.path(data_path, "households.qs"))
 
-hh_totals <- hh[, .(hh_size = .N), by = c("country", "panel", "wave", "part_wave_uid")]
-na_hhs <- hh[is.na(hh_size)]
-message(paste("Assigning NA hh sizes: ", nrow(hh[is.na(hh_size)])))
-part[is.na(hh_size), hh_size := 
-       unlist(lapply(part_wave_uid, match_hh_size, hh_total_dt = hh_totals))]
+
 
 # Filter for England only & rename area_3 ------------------
 england_area_3 <- c("South East", "North West", "West Midlands", "East Midlands", 
@@ -44,7 +40,14 @@ part[nhs_region %in% c("Yorkshire and The Humber", "North East"),
 part <- add_england_col(part)
 contacts <- add_england_col(contacts)
 
-# contacts <- add_england_col(contacts)
+# Assign household sizes for missing values
+hh <- hh[part_wave_uid %in% part$part_wave_uid]
+hh_totals <- hh[, .(hh_size = .N), by = c("country", "panel", "wave", "part_wave_uid")]
+na_hhs <- hh[is.na(hh_size)]
+message(paste("Assigning NA hh sizes: ", nrow(part[is.na(hh_size)])))
+part[is.na(hh_size), hh_size := 
+       unlist(lapply(part_wave_uid, match_hh_size, hh_total_dt = hh_totals))]
+table(part$hh_size, useNA = "always")
 
 # Lock to wave E/F 12 and before ------------------
 
