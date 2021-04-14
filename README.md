@@ -10,11 +10,32 @@ Will fill out this section
 install.packages("drat")
 drat:::add("epiforecasts")
 install.packages("covidregionaldata")
+
+install.packages(data.table)
+install.packages(ggplot2)
+install.packages(ggthemes)
+install.packages(lubridate)
+install.packages(patchwork)
+
+## If ggthemr is not available for your version of R, install using devtools instead:
+install.packages(ggthemr) 
+# install.packages("devtools")
+# devtools::install_github('Mikata-Project/ggthemr')
 ```
 
 #### Getting data
 
 Zenodo descpription or summary of other published dataset
+
+#### Running with shell script
+
+For mac or linux: </br>
+Run `sh run_analysis_mac.sh` (runs with default of 1000 bootstraps), or to specify number of samples run with an argument, eg `sh run_analysis_mac.sh 200`
+
+For windows: </br>
+Run `sh run_analysis_windows.sh` (runs with default of 1000 bootstraps), or to specify number of samples run with an argument, eg `sh run_analysis_windows.sh 200`
+
+
 
 #### Data cleaning and analysis
 
