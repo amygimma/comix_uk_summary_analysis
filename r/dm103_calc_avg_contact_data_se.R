@@ -72,16 +72,24 @@ for(i in unique(pdt$part_social_group)){
 
 # Get employment status ---------------------------------------------------
 for(i in c("Full time", "Part time", "Self employed")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = "All", employ_ = i, workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1)
+  for (j in c("All-adults", "18-59", "60+")) {
+    print(j)
+    print(i)
+    dt1 <- bs_group(pdt, boots, prop = 1, income_ = "All", employ_ = i, 
+                    workplace_ = "open", age_ = j)
+    dt_boot <- rbind(dt_boot, dt1)
+  }
 }
 
 # Get income ---------------------------------------------------------------
 for(i in c("<20k","20k-44.9k","45k+")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All", workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1)
+  for (j in c("All-adults", "18-59", "60+")) {
+    print(j)
+    print(i)
+    dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All",
+                    workplace_ = "open", age_ = j)
+    dt_boot <- rbind(dt_boot, dt1)
+  }
 }
 
 

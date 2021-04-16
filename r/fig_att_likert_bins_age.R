@@ -14,7 +14,7 @@ library(patchwork)
 
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
 cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
-
+cols <- c("#17877b", "#055a8c", "#d72638","#daa520", "#20bdcc", "#010f5b")
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
@@ -37,6 +37,7 @@ dt[, part_att_serious_bin := factor(part_att_serious_bin, levels = likert_bin_le
 # dt_likely <- dt[part_att_likely_bin %in% likert_bin_levels]
 
 expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
+subplot_title_size <- 10
 
 
 # Create plotting function ------------------------------------------------
@@ -52,7 +53,7 @@ plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month",
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.025, 0.85),
+      legend.position = c(0.775, 0.85),
       legend.title=element_text(size=9),
       legend.text=element_text(size=8)
     ) +
@@ -116,7 +117,7 @@ likely_lab <- "I am likely to catch coronavirus"
 att_likely_p <- 
   plot_mean_by_var_age(all_likely, 
                    var = "part_att_likely_bin", 
-                   guide_lab = likely_lab,
+                   guide_lab = "Response",
                    time_break = "month", 
                    upper_limit = upper_lim, 
                    cols_ = cols) +
@@ -124,7 +125,8 @@ att_likely_p <-
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
-  ggtitle("A") 
+  ggtitle(paste("A.", likely_lab)) +
+  theme(plot.title = element_text(size = subplot_title_size))
 
 att_likely_p 
 
@@ -145,7 +147,7 @@ spread_lab <- "I am worried that I might spread coronavirus to someone who is vu
 att_spread_p <- 
   plot_mean_by_var_age(all_spread , 
                    var = "part_att_spread_bin", 
-                   guide_lab = spread_lab,
+                   guide_lab = "Response",
                    time_break = "month", 
                    upper_limit = upper_lim, 
                    cols_ = cols
@@ -155,7 +157,8 @@ att_spread_p <-
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
-  ggtitle("B") 
+  ggtitle(paste("B.", spread_lab)) +
+  theme(plot.title = element_text(size = subplot_title_size))
 att_spread_p 
 
 
@@ -172,7 +175,7 @@ serious_lab <- "Coronavirus would be a serious illness for me"
 att_serious_p <- 
   plot_mean_by_var_age(all_serious , 
                    var = "part_att_serious_bin", 
-                   guide_lab = serious_lab,
+                   guide_lab = "Response",
                    time_break = "month", 
                    upper_limit = upper_lim, 
                    cols_ = cols) +
@@ -181,7 +184,8 @@ att_serious_p <-
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
-  ggtitle("C")
+  ggtitle(paste("C.", serious_lab)) +
+  theme(plot.title = element_text(size = subplot_title_size))
 att_serious_p 
 
 likert_plots <- (att_likely_p / att_spread_p / att_serious_p) + patchwork::plot_layout()
@@ -201,7 +205,7 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     geom_ribbon(aes(ymin = lci, ymax = uci, 
                     group = get(var), 
                     fill = get(var)), 
-                alpha = 0.3) +
+                alpha = 0.35) +
     geom_line( aes(y = mean,   
                    group = get(var),
                    color = get(var))) +
@@ -212,7 +216,7 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.025, 0.85),
+      legend.position = c(0.775, 0.85),
       legend.title=element_text(size=9),
       legend.text=element_text(size=8)
     ) +
@@ -253,15 +257,16 @@ hr_lab <- "High risk participant"
 hr_p <- 
   plot_mean_age_by_var(hr_age , 
                        var = "part_high_risk", 
-                       guide_lab = hr_lab ,
+                       guide_lab = "Response",
                        time_break = "month", 
                        upper_limit = upper_lim,
-                       cols_ = cols[c(3,2)]) +
+                       cols_ = cols[c(1,3)]) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
-  ggtitle("D")
+  ggtitle(paste("D.", hr_lab)) +
+  theme(plot.title = element_text(size = subplot_title_size))
 hr_p
 
 ggsave(plot = hr_p, filename = "outputs/hr_plots.png", 

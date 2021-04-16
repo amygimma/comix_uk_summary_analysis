@@ -290,10 +290,13 @@ counts_all_p_col
 ggsave(counts_all_p_col, filename = "outputs/counts_col.png", height = 4, width = 9)
 
 # Plot hospitalisations ----------------------------------------
+# cases <- fread(file.path("data", "epiforecasts_cases_hospitilizations.csv"))
+expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
+cases <- cases[date %between% expand_dates]
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
 theme_cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 time_break <- "2 month"
-tsize <- 3
+tsize <- 3.5
 upper_limit <- round(max(cases$hosp_new, na.rm = TRUE) + 100, digits = -2)
 
 hosp_p <- ggplot(cases) +
@@ -302,7 +305,8 @@ hosp_p <- ggplot(cases) +
   # scale_color_manual(values = theme_cols) +
   # scale_fill_manual(values = theme_cols) +
   expand_limits(y = 0) +
-  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_y_continuous(expand = expansion(0)) +
+  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
   theme(
     panel.spacing.y =  unit(1, "lines"),
     legend.position = c(0.1,0.7)
@@ -317,9 +321,12 @@ hosp_p <- ggplot(cases) +
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = upper_limit, alpha = .1) +
   labs(y = "Hospitalisations") +
-  annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 150, label = "Lockdown 1 (LD 1)") +
-  annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 150, label = "LD 2") +
-  annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 150, label = "LD 3") 
+  annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 150, 
+           label = "Lockdown 1 (LD 1)") +
+  annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 150, 
+           label = "LD 2") +
+  annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 150, 
+           label = "LD 3") 
 
 hosp_p
 

@@ -41,7 +41,7 @@ plot_fm_prop <- function(dt, time_break = "2 month", upper_limit = 1){
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.025, 0.65)
+      legend.position = c(0.5, 0.25)
     ) +
     scale_color_manual(values = cols) +
     scale_fill_manual(values = cols) +
@@ -52,9 +52,9 @@ plot_fm_prop <- function(dt, time_break = "2 month", upper_limit = 1){
     annotate("rect",
              xmin = study_dates[3], xmax = study_dates[4],
              ymin = 0, ymax = upper_limit, alpha = .1) +
-    annotate("rect", 
-             xmin = study_dates[5], xmax = study_dates[6],
-             ymin = 0, ymax = upper_limit, alpha = .1) +
+    # annotate("rect", 
+    #          xmin = study_dates[5], xmax = study_dates[6],
+    #          ymin = 0, ymax = upper_limit, alpha = .1) +
     annotate("rect", 
              xmin = study_dates[7], xmax = study_dates[8],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -93,15 +93,16 @@ fm_plot <-
   plot_fm_prop(dt, time_break = "2 months", upper_limit = upper_lim) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
-  annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) +
+  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
-  ggtitle("A") 
+  # ggtitle("A") 
 
 fm_plot
 
 ggsave(plot = fm_plot, filename = "outputs/face_mask_plot.png", width = 7, height = 4)
 
 
+dtl <- dt[has_non_hh_contacts == TRUE & mid_date >= "2020-08-01"]
+by(dtl$mean, dtl$part_age_group, summary)
 
 

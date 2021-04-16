@@ -48,24 +48,6 @@ Rscript "r/fig_likert_supp.R"
 
 # Create tables
 
-echo "Prep for table 1"
-Rscript "r/table_setup.R"
+echo "Create table 1"
 Rscript "r/table_one_study_periods.R"
-
-
-# echo "Create table 1"
-# Rscript "r/table_one.R"
-
-
-
-
-
-
-
-
-
-
-
-
-
 

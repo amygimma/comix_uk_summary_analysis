@@ -15,7 +15,7 @@ cases <- cases[region == "England"]
 class(cases$date)
 
 
-expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
+# expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
 
 # case_p <- ggplot(cases) +
 #   geom_col(aes(x= date, y = cases_new)) +
