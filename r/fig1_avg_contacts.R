@@ -297,15 +297,15 @@ theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = elem
 theme_cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 time_break <- "2 month"
 tsize <- 3.5
-upper_limit <- round(max(cases$hosp_new, na.rm = TRUE) + 100, digits = -2)
+upper_limit <- 10000
 
 hosp_p <- ggplot(cases) +
   geom_col(aes(x= date, y = hosp_new), color = theme_cols[3]) +
   expand_limits(x = expand_dates) +
   # scale_color_manual(values = theme_cols) +
   # scale_fill_manual(values = theme_cols) +
-  expand_limits(y = 0) +
-  scale_y_continuous(expand = expansion(0)) +
+  expand_limits(y = c(0, 10000)) +
+  scale_y_log10(expand = expansion(0)) +
   scale_x_date(breaks = "month", date_labels = "%b", name = "") +
   theme(
     panel.spacing.y =  unit(1, "lines"),
@@ -321,11 +321,11 @@ hosp_p <- ggplot(cases) +
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = upper_limit, alpha = .1) +
   labs(y = "Hospitalisations") +
-  annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 150, 
+  annotate("text", size = tsize, x = as.Date("2020-05-01"), y = upper_limit - 3050, 
            label = "Lockdown 1 (LD 1)") +
-  annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 150, 
+  annotate("text", size = tsize, x = as.Date("2020-11-15"), y = upper_limit - 3050, 
            label = "LD 2") +
-  annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 150, 
+  annotate("text", size = tsize, x = as.Date("2021-01-30"), y = upper_limit - 3050, 
            label = "LD 3") 
 
 hosp_p
@@ -367,4 +367,4 @@ fig1v4 <- ((hosp_p + ggtitle("A")) /
   plot_layout(heights = c(2,2,3,1))
 fig1v4
 
-ggsave(fig1v4, filename = "outputs/fig1v4.png", width = 11 , height = 13)
+ggsave(fig1v4, filename = "outputs/fig1v4_log_hosp.png", width = 11 , height = 13)
