@@ -14,6 +14,9 @@ fi
 echo "Prepare data for analysis"
 Rscript "r/dm100_prep_for_avg_contact_data.R" $boots
 
+echo "Weigh data for analysis"
+Rscript "r/dm100b_weights_for_avg_contact_data.R" 
+
 echo "Calculate mean contacts by age and setting"
 Rscript "r/dm101_calc_avg_contact_data.R" $boots
 

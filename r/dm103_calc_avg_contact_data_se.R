@@ -15,7 +15,7 @@ source('r/functions/bs_group.R')
 
 # Load participant data ---------------------------------------------------
 p1 <- qs::qread('data/dt_1w.qs')
-pdt <- qs::qread('data/dt_2w.qs')
+pdt <- qs::qread('data/dt_2w_weighted.qs')
 
 
 p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]

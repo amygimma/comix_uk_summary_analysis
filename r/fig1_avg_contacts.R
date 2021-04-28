@@ -71,7 +71,7 @@ plot_mean <- function(dt, time_break = "2 month", upper_limit = 6,
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     # expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
@@ -136,7 +136,7 @@ plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6,
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0)) +
     expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
@@ -208,7 +208,7 @@ counts_all_p <- ggplot(sample_type_count) +
   geom_text(aes(y = sample_type, x = mid_date, label = labmax), nudge_x = +10, nudge_y = 0.2,size = 3) +
   scale_color_manual(values = cols) +
   scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(1000, 1500, 2000)) +
-  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
+  scale_x_date(breaks = "month", date_labels = "%b '%y", name = "") +
   expand_limits(x = expand_dates)  +
   annotate("rect",
            xmin = study_dates[1], xmax = study_dates[2],
@@ -261,7 +261,7 @@ counts_all_p_line <- ggplot(sample_type_count) +
   scale_color_manual(values = cols, name = "Sample Type") +
   scale_linetype_manual(values = c(1,2,3,4), name = "Recruitment") +
   # scale_size(range = c(1, 3.5), name = "Number of participants", breaks = c(1000, 1500, 2000)) +
-  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
+  scale_x_date(breaks = "month", date_labels = "%b '%y", name = "") +
   expand_limits(x = expand_dates, y = c(0,3500))  +
   scale_y_continuous(breaks = seq(0,3500,500)) +
   # expand_limits(x = expand_dates, y = c(0,2800))  +
@@ -306,7 +306,7 @@ hosp_p <- ggplot(cases) +
   # scale_fill_manual(values = theme_cols) +
   expand_limits(y = 0) +
   scale_y_continuous(expand = expansion(0)) +
-  scale_x_date(breaks = "month", date_labels = "%b", name = "") +
+  scale_x_date(breaks = "month", date_labels = "%b '%y", name = "") +
   theme(
     panel.spacing.y =  unit(1, "lines"),
     legend.position = c(0.1,0.7)
@@ -339,7 +339,7 @@ hosp_p
 #   # scale_color_manual(values = theme_cols) +
 #   # scale_fill_manual(values = theme_cols) +
 #   expand_limits(y = 0) +
-#   scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+#   scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
 #   theme(
 #     panel.spacing.y =  unit(1, "lines"),
 #     legend.position = c(0.1,0.7)
