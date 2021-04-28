@@ -176,6 +176,7 @@ bs_group <- function(dt,
       samp1 <- merge(df_samp2, dt, by = "part_id")
   
     })
+    
     bs_dt <- samp1[, .(
       N = .N,
       part_age_group = agename,
@@ -192,16 +193,27 @@ bs_group <- function(dt,
       part_att_serious_bin = attseriousname,
       iteration = i, 
       All = weighted.mean(n_cnt, w = dayweight),
+      All_genderage = weighted.mean(n_cnt, w = dayweight * genderageweight_proportion),
+      
       Home = weighted.mean(n_cnt_home,  w = dayweight),
+      Home_genderage = weighted.mean(n_cnt_home, w = dayweight * genderageweight_proportion),
+      
       Work = weighted.mean(n_cnt_work,  w = dayweight),
+      Work_genderage = weighted.mean(n_cnt_work, w = dayweight * genderageweight_proportion),
+      
       `Work/Educ` = weighted.mean(n_cnt_workschool,  w = dayweight),
+      `Work/Educ_genderage` = weighted.mean(n_cnt_workschool,  w = dayweight * genderageweight_proportion),
+      
       Other = weighted.mean(n_cnt_other,  w = dayweight),
-      Physical = weighted.mean(n_cnt_phys,  w = dayweight),
-      Inside = weighted.mean(n_cnt_inside,  w = dayweight),
-      Outside = weighted.mean(n_cnt_outside,  w = dayweight),
-      `Other house` = weighted.mean(n_cnt_other_house,  w = dayweight),
-      `Supermarket` = weighted.mean(n_cnt_supermarket,  w = dayweight),
-      `Bar restaurant` = weighted.mean(n_cnt_bar_rest,  w = dayweight)
+      Other_genderage = weighted.mean(n_cnt_other, w = dayweight * genderageweight_proportion)
+      
+      
+      # Physical = weighted.mean(n_cnt_phys,  w = dayweight),
+      # Inside = weighted.mean(n_cnt_inside,  w = dayweight),
+      # Outside = weighted.mean(n_cnt_outside,  w = dayweight),
+      # `Other house` = weighted.mean(n_cnt_other_house,  w = dayweight),
+      # `Supermarket` = weighted.mean(n_cnt_supermarket,  w = dayweight),
+      # `Bar restaurant` = weighted.mean(n_cnt_bar_rest,  w = dayweight)
       ),
       by = .(start_date, mid_date, end_date, survey_round)
       ]
