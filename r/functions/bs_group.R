@@ -98,6 +98,7 @@ bs_group <- function(dt,
   # Subset by social group --------------------------------------------------
   # browser()
   socgroupname <- soc_group_
+  message(paste("sg: ", soc_group_))
   if(soc_group_ == "All"){
     soc_group_ <- c(NA, "B - Middle class", "C2 - Skilled working class", 
                     "E - Lower level of subsistence", "C1 - Lower middle class", 
