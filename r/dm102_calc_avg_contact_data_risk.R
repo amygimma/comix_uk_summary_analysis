@@ -105,12 +105,14 @@ dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender
                                         part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
 mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",
-              "Physical",
-              "Inside",
-              "Outside",
-              "Other house",
-              "Supermarket",
-              "Bar restaurant")
+              "All_genderage", "Home_genderage", "Work_genderage", "Work/Educ_genderage", "Other_genderage"
+              # "Physical",
+              # "Inside",
+              # "Outside",
+              # "Other house",
+              # "Supermarket",
+              # "Bar restaurant"
+              )
 
 
 l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_work_place",

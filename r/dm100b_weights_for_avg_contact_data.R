@@ -119,10 +119,12 @@ weightlookup2[, genderageweight_proportion := pop_proportion / sample_proportion
 # tw2[, weights_ratio := genderageweight_proportion / genderageweight_raw]
 # tw2[, prop_recalc := genderageweight_raw * sample_total / pop_total]
 # tw2[, compare := round(prop_recalc - genderageweight_proportion, 2)]
+# 
+# summary(pdt$genderageweight_proportion)
+# by(pdt$genderageweight_proportion,pdt$part_age_group,  summary)
+# quantile(pdt$genderageweight_proportion, 0.05)
+# quantile(pdt$genderageweight_proportion, 0.05)
 
-# Bound genderageweight_proportion by 0.3 and 3
-weightlookup2[genderageweight_proportion > 3, genderageweight_proportion := 3]
-weightlookup2[genderageweight_proportion < 0.3, genderageweight_proportion := 0.3]
 
 # Merge weights to pdt
 pdt <- merge(pdt, weightlookup2, by = c("country", "mid_date", "part_gender", "part_age_group"))
