@@ -32,7 +32,7 @@ age_labs <- c("All", "All-adults",  "0-4", "5-11", "12-17", "18-29", "30-39", "4
               "60-69", "70+", "18-59", "60+")
 
 dts[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
-dts[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other", "School", "Work"))]
+dts[, setting := factor(setting, levels = settings_)]
 
 
 #dts_rec[part_region == "North East and Yorkshire", part_region := "NE & Y"]
@@ -79,9 +79,11 @@ plotdate <- paste0(plotdate,"_all")
 date_labs = "%d-%b-%y"
 dir.create(paste0("outputs/", plotdate), showWarnings = FALSE)
 
-settings_ <- c("All", "Home", "Work/Educ", "Other")
+settings_ <- c("All", "Home", "Work/Educ", "Other",
+               "All_genderage", "Home_genderage", "Work_genderage", 
+               "Work/Educ_genderage", "Other_genderage")
 
-cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
+cols <- c("#17877b", "#055a8c", "#D7402B", "#daa520", "#20bdcc", "#010f5b", "#d72638")
 
 # Age and income --------------------------------------------
 # 
@@ -94,7 +96,7 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 #     part_income != "All" &
 #     part_work_place == "open" &
 #     part_employed == "All" &
-#     setting == "All"
+#     setting == "All_genderage"
 # ]
 # inc_age_dt
 # #
@@ -155,7 +157,7 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 #     part_income == "All" &
 #     part_work_place == "open" &
 #     part_employed != "All" &
-#     setting == "Work"
+#     setting == "Work_genderage"
 # ]
 # #
 # # emp_inc_dt$part_income <- as.factor(emp_inc_dt$part_income)
@@ -227,7 +229,7 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 #   part_income != "All" &
 #     part_work_place == "open" &
 #     part_employed != "All" &
-#     setting == "Work"
+#     setting == "Work_genderage"
 # ]
 # 
 # emp_inc_dt$part_income <- as.factor(emp_inc_dt$part_income)
@@ -279,19 +281,16 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 # Plot sc adults ------------------------------------------------------------
 
 sc_dt <-  dts_rec[
-  part_region %in% c("All") &
     part_age_group %in% c("All-adults") &
-    part_gender == "All" &
     part_social_group != "All" &
-    part_high_risk == "All" & 
     part_income == "All" & 
     part_work_place == "All" & 
     part_employed == "All" &
-    setting == "All"]
+    setting == "All_genderage"]
  
 upper_limit <- 7.5
 ylabel <- upper_limit - 0.5
-timeline_size <- 3.5
+timeline_size <- 1.75
 sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
   geom_ribbon(aes(ymin = lci, ymax = uci), fill = cols[6], alpha = 0.3) +
   geom_line( aes(y = mean), color = cols[6]) +
@@ -299,7 +298,7 @@ sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
   scale_fill_manual(values = cols) +
   facet_wrap(vars(part_social_group) , ncol = 3 ) +
   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
   expand_limits(x = expand_dates) + 
   theme(
     panel.spacing.y =  unit(1, "lines"),
@@ -307,6 +306,8 @@ sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
     legend.position = "none",
     # legend.title=element_text(size=12),
     # legend.text=element_text(size=10)
+    panel.grid.major = element_line(colour="grey", size=0.05),
+    axis.text.x = element_text(size = 6.5)
   ) +
   labs(title = "", y = "Mean contacts", x = "") +
   guides(fill=guide_legend(title="Socioeconomic group"), 
@@ -349,7 +350,7 @@ inc_dt <-  dts_rec[
     setting == "All"]
  
 
-upper_limit <- 20
+upper_limit <- 10
 ylabel <- upper_limit - 1
 timeline_size <- 3.5
 inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
@@ -361,15 +362,17 @@ inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
   labs(title = "", y = "Mean contacts", x = "") +
   expand_limits(x = expand_dates) + 
   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
   expand_limits(x = expand_dates) + 
   theme(
     panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.45, 0.65),
+    legend.position = c(0.45, 0.80),
     # legend.position = "none",
     legend.title=element_text(size=12),
     legend.text=element_text(size=10),
-    legend.direction = "horizontal"
+    legend.direction = "horizontal",
+    panel.grid.major = element_line(colour="grey", size=0.05),
+    axis.text.x = element_text(size = 6.5)
   ) +
   labs(title = "", y = "Mean contacts", x = "") +
   guides(fill=guide_legend(title="Income"), 
@@ -408,10 +411,10 @@ emp_dt <-  dts_rec[
     part_income == "All" & 
     part_work_place == "open" & 
     part_employed != "All" &
-    setting == "Work"
+    setting == "Work_genderage"
 ] 
   
-upper_limit <- 30
+upper_limit <- 31
 ylabel <- upper_limit - 2
 timeline_size <- 3.5
 emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
@@ -419,16 +422,18 @@ emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
   geom_line( aes(y = mean, col = part_employed)) +
   scale_color_manual(values = cols) +
   scale_fill_manual(values = cols) +
-  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
   guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment")) +
   labs(title = "", y = "Mean contacts", x = "") +
   theme(
     panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.35, 0.65),
+    legend.position = c(0.35, 0.8),
     legend.direction = "horizontal",
     legend.title=element_text(size=12),
-    legend.text=element_text(size=10)
+    legend.text=element_text(size=10),
+    panel.grid.major = element_line(colour="grey", size=0.05),
+    axis.text.x = element_text(size = 6.5)
   ) +
   annotate("rect",
            xmin = study_dates[1], xmax = study_dates[2],
@@ -466,7 +471,7 @@ emp_inc_dt <-  dts_rec[
     part_income != "All" & 
     part_work_place == "open" & 
     part_employed != "All" &
-    setting == "Work"
+    setting == "Work_genderage"
 ] 
 emp_inc_p <-
   ggplot(emp_inc_dt, aes(x = mid_date)) +
@@ -482,7 +487,9 @@ emp_inc_p <-
   scale_x_date(breaks = time_break, date_labels = date_labs) +
   expand_limits(x = expand_dates) + 
   theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+    # axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+    panel.grid.major = element_line(colour="grey", size=0.05),
+    axis.text.x = element_text(size = 6.5),
     #axis.text.x = element_blank(),
     panel.spacing.y =  unit(1, "lines")) +
     annotate("rect",

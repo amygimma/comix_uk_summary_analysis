@@ -16,7 +16,7 @@ source('r/functions/bs_group.R')
 # Load participant data ---------------------------------------------------
 p1 <- qs::qread('data/dt_1w.qs')
 pdt <- qs::qread('data/dt_2w_weighted.qs')
-
+pdt[, wfp_final := genderageweight_raw * genderageweight_proportion]
 
 p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
@@ -42,7 +42,7 @@ args <- commandArgs(trailingOnly=TRUE)
 print(args)
 if (length(args) == 1) boots <- as.numeric(args)
 if (!exists("boots")) boots <- 1000
-
+boots <- 500
 dt_boot <- data.table()
 message(paste("Running", boots, "bootstrapped samples"))
 

@@ -19,6 +19,8 @@ cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
 
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w.qs")
+# file_path <- file.path("data", "2021-04-29_500_bs_means_2w.qs")
+
 dt <- qs::qread(file_path)
 message(paste("read from:", file_path))
 # cases <- fread(file.path("data", "epiforecasts_cases_hospitilizations.csv"))
@@ -128,6 +130,8 @@ contacts_p <- plot_mean(all_age, time_break = "month", upper_limit = 20)
 # annotate("text", x = as.Date("2021-01-30"), y = 19.5, label = "LD 3") +
 
 contacts_p
+
+ggsave(contacts_p, filename = "outputs/ages_compwts.png")
 
 
 

@@ -90,7 +90,6 @@ bs_group <- function(dt,
   
   # Subset by social group --------------------------------------------------
   socgroupname <- soc_group_
-  message(paste("sg: ", soc_group_))
   if(soc_group_ == "All"){
     soc_group_ <- c(NA, "B - Middle class", "C2 - Skilled working class", 
                     "E - Lower level of subsistence", "C1 - Lower middle class", 
@@ -172,19 +171,19 @@ bs_group <- function(dt,
       part_att_serious_bin = attseriousname,
       iteration = i, 
       All = weighted.mean(n_cnt, w = dayweight),
-      All_genderage = weighted.mean(n_cnt, w = dayweight * genderageweight_proportion),
+      All_genderage = weighted.mean(n_cnt, w = dayweight * genderageweight_raw),
       
       Home = weighted.mean(n_cnt_home,  w = dayweight),
-      Home_genderage = weighted.mean(n_cnt_home, w = dayweight * genderageweight_proportion),
+      Home_genderage = weighted.mean(n_cnt_home, w = dayweight * genderageweight_raw),
       
       Work = weighted.mean(n_cnt_work,  w = dayweight),
-      Work_genderage = weighted.mean(n_cnt_work, w = dayweight * genderageweight_proportion),
+      Work_genderage = weighted.mean(n_cnt_work, w = dayweight * genderageweight_raw),
       
       `Work/Educ` = weighted.mean(n_cnt_workschool,  w = dayweight),
-      `Work/Educ_genderage` = weighted.mean(n_cnt_workschool,  w = dayweight * genderageweight_proportion),
+      `Work/Educ_genderage` = weighted.mean(n_cnt_workschool,  w = dayweight * genderageweight_raw),
       
       Other = weighted.mean(n_cnt_other,  w = dayweight),
-      Other_genderage = weighted.mean(n_cnt_other, w = dayweight * genderageweight_proportion)
+      Other_genderage = weighted.mean(n_cnt_other, w = dayweight * genderageweight_raw)
       
       
       # Physical = weighted.mean(n_cnt_phys,  w = dayweight),
