@@ -15,7 +15,10 @@ library(ggthemes)
 # source("r/functions/ggthemr_workaround.R")
 
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
-cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
+
+cols <- c("#17877b", "#D7402B", "#055a8c", "#daa520", "#20bdcc", "#010f5b", "#d72638")
+scales::show_col(cols)
+
 
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w.qs")
@@ -39,8 +42,14 @@ dt[, table(part_age_group)]
 # Recode factors to be in order -------------------------------------------
 age_levs <- c("0-4", "5-17", "18-59", "60+")
 age_labs <- c("0-4", "5-17", "18-59", "60+")
+weighted_settings <- c("All_genderage", "Home_genderage", "Work_genderage", 
+               "Work/Educ_genderage", "Other_genderage")
+setting_labels <- c("All", "Home", "Work", "Work/Educ", "Other")
 dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
-dt[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other"))]
+dt[, setting := as.character(setting)]
+dt <- dt[setting %in% weighted_settings]
+
+dt[, setting := factor(setting, levels = weighted_settings, labels = setting_labels)]
 
 # 
 # dt[, part_social_group_lab := factor(part_social_group,
@@ -62,7 +71,7 @@ expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
 
 # Create plotting function ------------------------------------------------
 plot_mean <- function(dt, time_break = "2 month", upper_limit = 6, 
-                      cols_ = c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")){
+                      cols_ = c("#17877b", "#D7402B", "#055a8c", "#daa520", "#20bdcc", "#010f5b", "#d72638")){
   ggplot(dt, aes(x = mid_date)) +
     geom_ribbon(aes(ymin = lci, ymax = uci, group = part_age_group, fill = part_age_group), alpha = 0.2) +
     geom_line( aes(y = mean, linetype = part_age_group, col = part_age_group)) +
@@ -75,7 +84,9 @@ plot_mean <- function(dt, time_break = "2 month", upper_limit = 6,
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
-      legend.position = c(0.1,0.7)
+      legend.position = c(0.1,0.7),
+      panel.grid.major = element_line(colour="grey", size=0.05),
+      axis.text.x = element_text(size = 6.5)
     ) +
     scale_linetype_manual(name = "Age (years)", values = c(1,2,3, 4)) +
     annotate("rect", 
@@ -127,7 +138,7 @@ contacts_p
 
 # Plot B: AdultContacts by setting ----------------------------------------------------
 plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6, 
-                              cols_ = c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")){
+                              cols_ = c("#17877b", "#D7402B", "#055a8c", "#daa520", "#20bdcc", "#010f5b", "#d72638")){
   ggplot(dt, aes(x = mid_date)) +
     geom_ribbon(aes(ymin = lci, ymax = uci, group = part_age_group, fill = part_age_group), alpha = 0.3) +
     geom_line( aes(y = mean, linetype = part_age_group, col = part_age_group)) +
@@ -141,7 +152,9 @@ plot_mean_setting <- function(dt, time_break = "month", upper_limit = 6,
     theme(
       panel.spacing.y =  unit(1, "lines"),
       legend.position = c(0.05, 0.95),
-      legend.direction = "horizontal"
+      legend.direction = "horizontal",
+      panel.grid.major = element_line(colour="grey", size=0.05),
+      axis.text.x = element_text(size = 6.5)
     ) +
     scale_linetype_manual(name = "Age (years)", values = c(1,2,3,4)) +
     annotate("rect",
@@ -220,7 +233,9 @@ counts_all_p <- ggplot(sample_type_count) +
            xmin = study_dates[7], xmax = study_dates[8],
            ymin = 0, ymax = 5, alpha = .1) +
   theme(legend.direction = "horizontal", 
-        legend.position = c(0.6, 0.9)) +
+        legend.position = c(0.6, 0.9),
+        panel.grid.major = element_line(colour="grey", size=0.05),
+        axis.text.x = element_text(size = 6.5)) +
   # guides(size = guide_legend(title.position = "top", label.position = "top")) +
   labs(y = "Sample Type", subtitle = "") +
   ggtitle("C")
@@ -276,7 +291,9 @@ counts_all_p_line <- ggplot(sample_type_count) +
            ymin = 0, ymax = 3500, alpha = .1) +
   theme(
     legend.direction = "horizontal",
-    legend.position = c(0.05, 0.80)) +
+    legend.position = c(0.05, 0.80),
+    panel.grid.major = element_line(colour="grey", size=0.05),
+    axis.text.x = element_text(size = 6.5)) +
   labs(y = "Number of participants", subtitle = "")
 
 counts_all_p_line 

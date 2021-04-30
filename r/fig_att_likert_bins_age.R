@@ -13,8 +13,9 @@ library(patchwork)
 
 
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
-cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
-cols <- c("#17877b", "#055a8c", "#d72638","#daa520", "#20bdcc", "#010f5b")
+
+cols <- c("#17877b", "#055a8c", "#D7402B", "#daa520", "#20bdcc", "#010f5b", "#d72638")
+
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
@@ -49,13 +50,15 @@ plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month",
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
       legend.position = c(0.775, 0.85),
       legend.title=element_text(size=9),
-      legend.text=element_text(size=8)
+      legend.text=element_text(size=8),
+      panel.grid.major = element_line(colour="grey", size=0.05),
+      axis.text.x = element_text(size = 6.5)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
@@ -106,7 +109,7 @@ all_likely <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All" &
+    setting == "All_genderage" &
     part_att_spread_bin == "All"  &
     part_att_likely_bin != "All" &
     part_att_serious_bin == "All"
@@ -138,7 +141,7 @@ all_spread <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All" &
+    setting == "All_genderage" &
     part_att_spread_bin != "All"  &
     part_att_likely_bin == "All" &
     part_att_serious_bin == "All"
@@ -166,7 +169,7 @@ all_serious <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All" &
+    setting == "All_genderage" &
     part_att_spread_bin == "All"  &
     part_att_likely_bin == "All" &
     part_att_serious_bin != "All"
@@ -212,13 +215,15 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     facet_grid(rows = vars(part_age_group_lab)) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
       legend.position = c(0.775, 0.85),
-      legend.title=element_text(size=9),
-      legend.text=element_text(size=8)
+      legend.title = element_text(size=9),
+      legend.text = element_text(size=8),
+      panel.grid.major = element_line(colour="grey", size=0.05),
+      axis.text.x = element_text(size = 6.5)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
@@ -242,7 +247,7 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
 hr_age <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_high_risk != "All" &
-    setting == "All" 
+    setting == "All_genderage" 
   
 ] 
 
@@ -260,7 +265,7 @@ hr_p <-
                        guide_lab = "Response",
                        time_break = "month", 
                        upper_limit = upper_lim,
-                       cols_ = cols[c(1,3)]) +
+                       cols_ = cols[c(2,3)]) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +

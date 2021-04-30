@@ -42,6 +42,7 @@ args <- commandArgs(trailingOnly=TRUE)
 print(args)
 if (length(args) == 1) boots <- as.numeric(args)
 if (!exists("boots")) boots <- 1000
+boots <- 500
 
 dt_boot <- data.table()
 message(paste("Running", boots, "bootstrapped samples"))
@@ -52,7 +53,7 @@ message(paste("Running", boots, "bootstrapped samples"))
 ## Setting and risk by age
 for(i in c("0-4", "5-17", "18-59", "60+")){
   print(i)
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "All" )
+  # dt1 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "All" )
   dt2 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "yes")
   dt3 <- bs_group(pdt,  boots, prop = 1.0, age = i, area_ = "All", risk_group_ = "no")
   
@@ -80,12 +81,12 @@ for(i in c("Agree", "Disagree", "Neutral")){
   }
 }
 
-# Get for att_serious status ---------------------------------------------
-for(i in c("Agree", "Disagree", "Neutral")){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = "All-adults")
-  # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1)
-}
+# # Get for att_serious status ---------------------------------------------
+# for(i in c("Agree", "Disagree", "Neutral")){
+#   dt1 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i,  age_ = "All-adults")
+#   # dt2 <- bs_group(pdt,  boots, prop = 1.0, att_serious_bin_ = i, age_ = "All")
+#   dt_boot <- rbind(dt_boot, dt1)
+# }
 
 for(i in c("Agree", "Disagree", "Neutral")){
   for (j in c("18-59", "60+")) {
