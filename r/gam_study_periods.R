@@ -12,10 +12,9 @@ library(mgcv)
 library(ggplot2)
 
 
-# Load participant data and set variables -----------------------------------
+# Load participant data ---------------------------------------------------
 p1 <- qs::qread('data/dt_1w.qs')
 pdt <- qs::qread('data/dt_2w_weighted.qs')
-pdt[, wfp_final := genderageweight_raw * genderageweight_proportion]
 
 p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
@@ -77,7 +76,7 @@ ci_gam <- function(mod, level = 0.95) {
   return(dt)
 }
 
-# Formulas -----------------------------
+# Formulas ------------------------------------------
 
 formulas <- list(
   # list(form = formula(n_cnt ~ study_period),
@@ -119,7 +118,6 @@ for (j in 1:length(formulas)) {
     mods[[i]] <- mod_ci
   }
   
-  # browser()
   # Create output dt-----------
   cis <- rbindlist(mods)
   
@@ -134,7 +132,6 @@ for (j in 1:length(formulas)) {
   ]
   full <- data.frame(mod = m_periods$mod,
                      term = "Lockdown 1", rr = 1, lci = 1, uci = 1)
-  # browser()
   m_periods <- rbind(m_periods, full)
   
   
