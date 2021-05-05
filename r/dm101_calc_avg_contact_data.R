@@ -15,8 +15,8 @@ source('r/functions/bs_group.R')
 
 # Load participant data ---------------------------------------------------
 p1 <- qs::qread('data/dt_1w.qs')
-pdt <- qs::qread('data/dt_2w.qs')
-
+pdt <- qs::qread('data/dt_2w_weighted.qs')
+pdt[, wfp_final := genderageweight_raw * genderageweight_proportion]
 
 p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
@@ -42,8 +42,7 @@ args <- commandArgs(trailingOnly=TRUE)
 print(args)
 if (length(args) == 1) boots <- as.numeric(args)
 if (!exists("boots")) boots <- 1000
-
-
+boots <- 500
 dt_boot <- data.table()
 message(paste("Running", boots, "bootstrapped samples"))
 
@@ -81,12 +80,14 @@ for(i in c("0-4", "5-17", "18-59", "60+")){
 dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
 mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",
-  "Physical",
-  "Inside",
-  "Outside",
-  "Other house",
-  "Supermarket",
-  "Bar restaurant")
+              "All_genderage", "Home_genderage", "Work_genderage", "Work/Educ_genderage", "Other_genderage"
+  # "Physical",
+  # "Inside",
+  # "Outside",
+  # "Other house",
+  # "Supermarket",
+  # "Bar restaurant"
+  )
 
 
 l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_work_place",

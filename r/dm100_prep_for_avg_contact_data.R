@@ -191,6 +191,8 @@ vars <- c(
   "sample_type",
   "area",
   "part_age_group",
+  "part_age_est_max",
+  "part_age_est_min",
   "part_social_group",
   "part_gender",
   # Risk

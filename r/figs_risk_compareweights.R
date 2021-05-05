@@ -13,9 +13,8 @@ library(patchwork)
 
 
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
-
-cols <- c("#17877b", "#055a8c", "#D7402B", "#daa520", "#20bdcc", "#010f5b", "#d72638")
-
+cols <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
+cols <- c("#17877b", "#055a8c", "#d72638","#daa520", "#20bdcc", "#010f5b")
 # Load participant data ---------------------------------------------------
 file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
@@ -43,27 +42,25 @@ subplot_title_size <- 10
 
 # Create plotting function ------------------------------------------------
 plot_mean_by_var_age <- function(dt, var, guide_lab, time_break = "2 month", 
-                             upper_limit = 6, cols_ = c("#d72638", "#055a8c", "#17877b")){
+                                 upper_limit = 6, cols_ = c("#d72638", "#055a8c", "#17877b")){
   ggplot(dt, aes(x = mid_date)) +
-    geom_ribbon(aes(ymin = lci, ymax = uci, group = get(var), fill = get(var)), alpha = 0.3) +
-    geom_line( aes(y = mean,   color = get(var))) +
+    geom_ribbon(aes(ymin = lci, ymax = uci, group = interaction(get(var), setting), fill = get(var)), alpha = 0.3) +
+    geom_line( aes(y = mean,   color = get(var), linetype = setting)) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
       legend.position = c(0.775, 0.85),
       legend.title=element_text(size=9),
-      legend.text=element_text(size=8),
-      panel.grid.major = element_line(colour="grey", size=0.05),
-      axis.text.x = element_text(size = 6.5)
+      legend.text=element_text(size=8)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
     facet_grid(vars(part_age_group_lab)) +
-    scale_linetype_manual(name = guide_lab, values = c(2,3, 4)) +
+    scale_linetype_manual(name = guide_lab, values = c(1,2,3, 4)) +
     annotate("rect", 
              xmin = study_dates[1], xmax = study_dates[2],
              ymin = 0, ymax = upper_limit, alpha = .1) +
@@ -109,7 +106,7 @@ all_likely <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All_genderage" &
+    setting %in% c("All", "All_genderage") &
     part_att_spread_bin == "All"  &
     part_att_likely_bin != "All" &
     part_att_serious_bin == "All"
@@ -119,11 +116,11 @@ all_likely <- dt[
 likely_lab <- "I am likely to catch coronavirus"
 att_likely_p <- 
   plot_mean_by_var_age(all_likely, 
-                   var = "part_att_likely_bin", 
-                   guide_lab = "Response",
-                   time_break = "month", 
-                   upper_limit = upper_lim, 
-                   cols_ = cols) +
+                       var = "part_att_likely_bin", 
+                       guide_lab = "Response",
+                       time_break = "month", 
+                       upper_limit = upper_lim, 
+                       cols_ = cols) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
@@ -141,7 +138,7 @@ all_spread <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All_genderage" &
+    setting %in% c("All", "All_genderage") &
     part_att_spread_bin != "All"  &
     part_att_likely_bin == "All" &
     part_att_serious_bin == "All"
@@ -149,11 +146,11 @@ all_spread <- dt[
 spread_lab <- "I am worried that I might spread coronavirus to someone who is vulnerable"
 att_spread_p <- 
   plot_mean_by_var_age(all_spread , 
-                   var = "part_att_spread_bin", 
-                   guide_lab = "Response",
-                   time_break = "month", 
-                   upper_limit = upper_lim, 
-                   cols_ = cols
+                       var = "part_att_spread_bin", 
+                       guide_lab = "Response",
+                       time_break = "month", 
+                       upper_limit = upper_lim, 
+                       cols_ = cols
   ) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
@@ -169,7 +166,7 @@ all_serious <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_social_group == "All" &
     part_high_risk == "All" &
-    setting == "All_genderage" &
+    setting %in% c("All", "All_genderage") &
     part_att_spread_bin == "All"  &
     part_att_likely_bin == "All" &
     part_att_serious_bin != "All"
@@ -177,11 +174,11 @@ all_serious <- dt[
 serious_lab <- "Coronavirus would be a serious illness for me"
 att_serious_p <- 
   plot_mean_by_var_age(all_serious , 
-                   var = "part_att_serious_bin", 
-                   guide_lab = "Response",
-                   time_break = "month", 
-                   upper_limit = upper_lim, 
-                   cols_ = cols) +
+                       var = "part_att_serious_bin", 
+                       guide_lab = "Response",
+                       time_break = "month", 
+                       upper_limit = upper_lim, 
+                       cols_ = cols) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
@@ -197,7 +194,7 @@ likert_plots
 
 
 
-ggsave(plot = likert_plots, filename = "outputs/likert_plots_age.png", 
+ggsave(plot = likert_plots, filename = "outputs/likert_plots_age_compareweights.png", 
        height = 9, width = 7)
 
 plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month", 
@@ -215,15 +212,13 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
     facet_grid(rows = vars(part_age_group_lab)) +
     labs(title = "", y = "Mean contacts", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-    scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
       legend.position = c(0.775, 0.85),
-      legend.title = element_text(size=9),
-      legend.text = element_text(size=8),
-      panel.grid.major = element_line(colour="grey", size=0.05),
-      axis.text.x = element_text(size = 6.5)
+      legend.title=element_text(size=9),
+      legend.text=element_text(size=8)
     ) +
     scale_color_manual(values = cols_) +
     scale_fill_manual(values = cols_) +
@@ -247,7 +242,7 @@ plot_mean_age_by_var <- function(dt, var, guide_lab, time_break = "2 month",
 hr_age <- dt[
   part_age_group %in% c("18-59", "60+") &
     part_high_risk != "All" &
-    setting == "All_genderage" 
+    setting %in% c("All", "All_genderage") 
   
 ] 
 
@@ -265,7 +260,7 @@ hr_p <-
                        guide_lab = "Response",
                        time_break = "month", 
                        upper_limit = upper_lim,
-                       cols_ = cols[c(2,3)]) +
+                       cols_ = cols[c(1,3)]) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
@@ -274,7 +269,7 @@ hr_p <-
   theme(plot.title = element_text(size = subplot_title_size))
 hr_p
 
-ggsave(plot = hr_p, filename = "outputs/hr_plots.png", 
+ggsave(plot = hr_p, filename = "outputs/hr_plots_compareweights_compareweights.png", 
        height = 5, width = 7)
 
 
@@ -283,5 +278,5 @@ ggsave(plot = hr_p, filename = "outputs/hr_plots.png",
 risk_plots <- ((att_likely_p + att_spread_p) / (att_serious_p + hr_p)) + patchwork::plot_layout()
 risk_plots
 
-ggsave(risk_plots, filename = "outputs/risk_plots.png", height = 8, width = 12)
+ggsave(risk_plots, filename = "outputs/risk_plots_compareweights.png", height = 8, width = 12)
 
