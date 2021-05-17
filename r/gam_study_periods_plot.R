@@ -57,7 +57,7 @@ by(pdt$n_cnt, pdt$study_period , summary)
 
 # Functions ----------------------------
 gam_wrap <- function(formula_, link = "log", data) {
-      gam(formula_,
+  gam(formula_,
       data = data, 
       weights = genderageweight_proportion,
       family = nb(link = link))
@@ -80,23 +80,21 @@ ci_gam <- function(mod, level = 0.95) {
 # Formulas -----------------------------
 
 formulas <- list(
-  # list(form = formula(n_cnt ~ study_period),
-  #      mod_ref = "study_period"),
-  # list(form = formula(n_cnt ~ study_period + d s(part_id, bs = "re")),
-  #      mod_ref = "study_period_re-part_id"),
-  # list(form = formula(n_cnt ~ study_period + s(part_id, by = study_period, bs = "re")),
-  #      mod_ref = "study_period_re-part_id-by-study_period"),
-  list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs") + s(part_id, bs = "re")),
-       mod_ref = "sp__s-study_period-fs__re-part_id-by-study_period"),
-  list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
-       mod_ref = "sp__s-study_period-fs")
-  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
-  #      mod_ref = "study_period__re-part_id-by-study_period")
+  list(form = formula(n_cnt ~ study_period + s(part_id, bs = "re")),
+       mod_ref = "study_period_re-part_id"),
+  list(form = formula(n_cnt ~ study_period + s(part_id, by = study_period, bs = "re")),
+       mod_ref = "study_period_re-part_id-by-study_period"),
+  list(form = formula(n_cnt ~ s(study_period, bs = "fs") + s(part_id, bs = "re")),
+       mod_ref = "s-study_period-fs__re-part_id-by-study_period"),
+  list(form = formula(n_cnt ~ s(study_period, bs = "fs")),
+       mod_ref = "s-study_period-fs"),
+  list(form = formula(n_cnt ~ s(study_period, bs = "fs")),
+       mod_ref = "study_period__re-part_id-by-study_period")
 )
 
 # Run models -----------------------------
-for (j in 1:length(formulas)) {
-  form_item <- formulas[[j]]
+for (i in 1:length(formulas)) {
+  form_item <- formulas[[i]]
   # Set formula
   form <- form_item$form
   # set model reference for files
@@ -112,35 +110,32 @@ for (j in 1:length(formulas)) {
     pdtage <- pdt[as.character(part_age_group) == age_group]
     mod_subset <- gam_wrap(form, link = "log", data = pdtage)
     mod_raw[[i]] <- mod_subset
-    # browser()
     
     mod_ci <- ci_gam(mod_subset)
     mod_ci[, mod := age_group]
     mods[[i]] <- mod_ci
   }
   
-  browser()
   # Create output dt-----------
   cis <- rbindlist(mods)
   
-  m_periods <- cis[grepl("period", coef),
-                    .(
-                      mod,
-                      term = gsub("study_period", "", coef),
-                      rr = exp(est),
-                      lci = exp(lci),
-                      uci = exp(uci)
-                    )
-  ]
   full <- data.frame(mod = m_periods$mod,
                      term = "Lockdown 1", rr = 1, lci = 1, uci = 1)
-  # browser()
-  m_periods <- rbind(m_periods, full)
   
+  m_periods <- cis[grepl("period", coef),
+                   .(
+                     mod,
+                     term = gsub("study_period", "", coef),
+                     rr = exp(est),
+                     lci = exp(lci),
+                     uci = exp(uci)
+                   )
+  ]
   
   # Format output dt-----------------
   m_periods[, term := factor(m_periods$term)]
   m_periods[, mod := factor(mod, levels = part_age_groups, labels = part_age_labs)]
+  m_periods <- rbind(m_periods, full)
   m_periods[, term := factor(term, levels = dates$study_period)]
   m_periods[, sample_type := ifelse(as.character(mod) %in% c("0-4", "5-17"), "Children", "Adults")]
   m_periods[, sample_type := factor(sample_type, levels = c("Adults", "Children"))]
@@ -149,7 +144,7 @@ for (j in 1:length(formulas)) {
   
   # Plot output ------------------
   avg_conts_rr2_facet <- ggplot(m_periods[],
-                                   aes(x = term, y = rr, color = mod)) +
+                                aes(x = term, y = rr, color = mod)) +
     geom_hline(yintercept = 1, color = '#f79b57') +
     geom_point(shape = 15, size  = 1.5, position = position_dodge(width = 0.3)) +
     geom_errorbar(aes(ymin = lci,
@@ -176,11 +171,11 @@ for (j in 1:length(formulas)) {
   ggsave(avg_conts_rr2_facet, filename = file.path("outputs", plot_fname), 
          width = 9, height = 8)
   message(plot_fname)
-
+  
   mod_fname <- paste0("mod_raw_", mod_ref, ".qs")
   qs::qsave(mod_raw, file.path("data", mod_fname))
   message(mod_fname)
-
+  
   cis_fname <- paste0("mod_cis_", mod_ref, ".qs")
   qs::qsave(cis, file.path("data", cis_fname))
   message(cis_fname)
