@@ -47,7 +47,7 @@ library(magrittr)
 
 # Set plot parameters -----------------------------------------------------
 
-plotdate <- max(dts$end_date)
+plotdate <- max(as.Date("2021-03-23"))
 expand_dates <- plotdate + 5
 plot_width <- 12
 plot_height <- 7
@@ -67,12 +67,12 @@ study_dates <- as.Date(c(
 ))
 
 # Set the dates for the graphs --------------------------------------------
-dts_rec <- dts[mid_date >= as.Date("2020-02-01")]
+dts_rec <- dts[mid_date >= as.Date("2020-02-01") & mid_date <= as.Date("2021-03-23")]
 time_break <- "2 month"
 
 ## For 2 weeks
 date_labs = "%d-%b-"
-plotdate <- plotdate
+# plotdate <- plotdate
 
 ## For 2 months
 plotdate <- paste0(plotdate,"_all")
@@ -299,7 +299,7 @@ sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
   scale_fill_manual(values = cols) +
   facet_wrap(vars(part_social_group) , ncol = 3 ) +
   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+  scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
   expand_limits(x = expand_dates) + 
   theme(
     panel.spacing.y =  unit(1, "lines"),
@@ -333,6 +333,72 @@ sc_adults_name <- "outputs/sc_adults_all.png"
 ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
 
 
+# Social group 2 
+sc_g2_dt <- qs::qread("data/bs_means_2w_sg2.qs")
+# Set the dates for the graphs --------------------------------------------
+sc_g2_dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
+sc_g2_dt[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other", "School", "Work"))]
+
+
+sc_g2_dt <- sc_g2_dt[mid_date >= as.Date("2020-02-01") & mid_date <= as.Date("2021-03-23")]
+
+sc_g2_dt  <-  sc_g2_dt[
+  part_region %in% c("All") &
+    part_age_group %in% c("18-59", "60+") &
+    part_gender == "All" &
+    part_social_group != "All" &
+    part_high_risk == "All" & 
+    part_income == "All" & 
+    part_work_place == "All" & 
+    part_employed == "All" &
+    setting == "All"]
+
+upper_limit <- 7.5
+ylabel <- upper_limit - 0.5
+timeline_size <- 3.5
+scg2_p <-  ggplot(sc_g2_dt , aes(x = mid_date)) +
+  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_social_group), alpha = 0.3) +
+  geom_line( aes(y = mean, color = part_social_group)) +
+  scale_color_manual(values = cols[c(2,1)]) +
+  scale_fill_manual(values = cols[c(2,1)]) +
+  facet_grid(vars(part_age_group)) +
+  # theme_bw() +
+  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+  scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
+  expand_limits(x = expand_dates) + 
+  expand_limits(y = 0) +
+  theme(
+    panel.spacing.y =  unit(1, "lines"),
+    # legend.background = 
+    # legend.position = "none",
+    # legend.title=element_text(size=12),
+    legend.position = c(0.55, 0.875),
+    legend.direction = "horizontal",
+    legend.text=element_text(size=12)
+  ) +
+  labs(title = "", y = "Mean contacts", x = "") +
+  guides(fill=guide_legend(title="Socioeconomic group"), 
+         color = guide_legend(title="Socioeconomic group")) +
+  annotate("rect",
+           xmin = study_dates[1], xmax = study_dates[2],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  annotate("rect",
+           xmin = study_dates[3], xmax = study_dates[4],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  # annotate("rect",
+  #          xmin = study_dates[5], xmax = study_dates[6],
+  #          ymin = 0, ymax = upper_limit, alpha = .1) +
+  annotate("rect",
+           xmin = study_dates[7], xmax = study_dates[8],
+           ymin = 0, ymax = upper_limit, alpha = .1) +
+  annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
+  annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
+  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size)
+# annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+# ggtitle("A")
+scg2_p 
+sc_adults_name <- "outputs/sc_sg2_adults.png"
+ggsave(scg2_p , filename = sc_adults_name, width = plot_width, height = 6)
 
 # Income work open ---------------------------------------------------------------
 

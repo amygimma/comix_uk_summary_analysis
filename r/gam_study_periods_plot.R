@@ -117,8 +117,7 @@ for (i in 1:length(formulas)) {
   }
   
   # Create output dt-----------
-  cis <- rbindlist(mods)
-  
+
   full <- data.frame(mod = m_periods$mod,
                      term = "Lockdown 1", rr = 1, lci = 1, uci = 1)
   

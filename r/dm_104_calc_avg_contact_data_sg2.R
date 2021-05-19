@@ -58,87 +58,28 @@ message(paste("Running", boots, "bootstrapped samples"))
 # SE analysis -----------------------------------------------------------
 ## Adults by socio-economic status
 for(i in c("60+", "18-59")){
-  for(j in sort(unique(pdt$part_social_group))){
+  for(j in c("ABC1", "C2DE")){
     if(!is.na(j)){
       print(i)
       print(j)
+      dt1 <- bs_group(pdt, boots, prop = 1.0, soc_group_ = j,  age_ = i)
       
       dt_boot <- rbind(dt_boot, dt1)
     }
   }
 }
 
-## Adults by socio-economic status
-for(i in c("60+", "18-59")){
-  for(j in sort(unique(pdt$part_social_group))){
-    if(!is.na(j)){
-      print(i)
-      print(j)
-      dt1 <- bs_group(pdt, boots, prop = 1.0, soc_group_ = j,  age_ = i)
 
-      dt_boot <- rbind(dt_boot, dt1)
-    }
-  }
-}
-
-
-# Get for socioeconomic status ---------------------------------------------
-for(i in unique(pdt$part_social_group)){
-  dt1 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i,  age_ = "All-adults")
-  # dt2 <- bs_group(pdt,  boots, prop = 1.0, soc_group_ = i, age_ = "All")
-  dt_boot <- rbind(dt_boot, dt1)
-}
-
-# Get employment status ---------------------------------------------------
-for(i in c("Full time", "Part time", "Self employed")){
-  for (j in c("All-adults", "18-59", "60+")) {
-    print(j)
-    print(i)
-    dt1 <- bs_group(pdt, boots, prop = 1, income_ = "All", employ_ = i, 
-                    workplace_ = "open", age_ = j)
-    dt_boot <- rbind(dt_boot, dt1)
-  }
-}
-
-# Get income ---------------------------------------------------------------
-for(i in c("<20k","20k-44.9k","45k+")){
-  for (j in c("All-adults")) {
-    print(j)
-    print(i)
-    dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All",
-                    workplace_ = "open", age_ = j)
-    dt_boot <- rbind(dt_boot, dt1)
-  }
-}
-
-for(i in c("<20k","20k-44.9k","45k+")){
-  for (j in c("All-adults")) {
-    print(j)
-    print(i)
-    dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "All",
-                    workplace_ = "All", age_ = j)
-    dt_boot <- rbind(dt_boot, dt1)
-  }
-}
-
-
-# Employment within income -------------------------------------------------
-for(i in c("<20k","20k-44.9k","45k+")){
-  print(i)
-  dt1 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Full time", workplace_ = "open", age_ = "All-adults")
-  dt2 <- bs_group(pdt, boots, prop = 1, income_ = i, employ_ = "Part time", workplace_ = "open", age_ = "All-adults")
-  dt_boot <- rbind(dt_boot, dt1, dt2)
-}
 
 dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
 mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",
-  "Physical",
-  "Inside",
-  "Outside",
-  "Other house",
-  "Supermarket",
-  "Bar restaurant")
+              "Physical",
+              "Inside",
+              "Outside",
+              "Other house",
+              "Supermarket",
+              "Bar restaurant")
 
 
 l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_work_place",
@@ -162,7 +103,7 @@ dts <- l_dt[, .(
 
 # Save data ---------------------------------------------------------------
 sys_date <- Sys.Date()
-filename <- "bs_means_2w_se.qs"
+filename <- "bs_means_2w_sg2.qs"
 file_path <- file.path("data", paste(sys_date, boots, filename, sep = "_"))
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
@@ -170,5 +111,4 @@ message(paste("saved to:", file_path))
 file_path <- file.path("data", filename)
 qs::qsave(dts, file_path)
 message(paste("saved to:", file_path))
-
 

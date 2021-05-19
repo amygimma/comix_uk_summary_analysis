@@ -119,7 +119,7 @@ for (j in 1:length(formulas)) {
     mods[[i]] <- mod_ci
   }
   
-  browser()
+  # browser()
   # Create output dt-----------
   cis <- rbindlist(mods)
   

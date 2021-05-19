@@ -15,7 +15,8 @@ bs_group <- function(dt,
                      att_serious_bin_ = "All",
                      employ_ = "All",
                      income_ = "All" ,
-                     workplace_ = "All"
+                     workplace_ = "All",
+                     hh_size_group_ = "All"
 ) {
 
   # subset by region --------------------------------------------------------
@@ -54,8 +55,14 @@ bs_group <- function(dt,
   if(gender_ == "All"){
     gender_ <- c("female", "male", "other", NA)
   } 
-
   
+  # Subset by hh size group ------------------------------------------------
+  
+  hhsizegroupname <- hh_size_group_
+  if(hh_size_group_ == "All"){
+    hh_size_group_ <- c("1",  "2", "3-5", "6+", "Unknown", NA)
+  } 
+
   # Subset by income --------------------------------------------------------
   incomename <- income_
   if(income_ == "All"){
@@ -89,6 +96,7 @@ bs_group <- function(dt,
   }
   
   # Subset by social group --------------------------------------------------
+  # browser()
   socgroupname <- soc_group_
   if(soc_group_ == "All"){
     soc_group_ <- c(NA, "B - Middle class", "C2 - Skilled working class", 
@@ -96,6 +104,17 @@ bs_group <- function(dt,
                     "D - Working class", "A - Upper middle class"
     )
   } 
+  
+  
+  if (soc_group_ == "ABC1") {
+    soc_group_ <- c("A - Upper middle class", "B - Middle class", "C1 - Lower middle class")
+    message(soc_group_)
+  } else if (soc_group_ == "C2DE") {
+    soc_group_ <- c("C2 - Skilled working class", "D - Working class",
+                    "E - Lower level of subsistence")
+    message(soc_group_)
+  }
+                    
 
   # Subset by risk group --------------------------------------------------
   
@@ -133,7 +152,9 @@ bs_group <- function(dt,
              part_att_serious_bin %in% att_serious_bin_ &
              part_income %in% income_ & 
              part_employed %in% employ_ &
-             part_work_place %in% workplace_]
+             part_work_place %in% workplace_, 
+             hh_size_group %in% hh_size_group_
+           ]
 
   bs_list <- list()
   for(i in 1:sims){
@@ -165,6 +186,7 @@ bs_group <- function(dt,
       part_income = incomename,
       part_employed = employname,
       part_work_place = workplacename,
+      hh_size_group_ = hhsizegroupname,
       part_att_spread_bin = attspreadname,
       part_att_likely_bin = attlikelyname,
       part_att_serious_bin = attseriousname,
