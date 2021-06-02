@@ -21,6 +21,8 @@ mod_filename <- "mod_raw_study_period_re-part_id.qs"
 
 cis <- qs::qread(file.path("data", cis_filename))
 mod_raw <- qs::qread(file.path("data", mod_filename))
+dates <- readxl::read_xlsx(file.path("data", "table1_dates.xlsx"), sheet = 2)
+study_periods <- dates$study_period
 
 mod_raw[[3]]$formula
 
@@ -52,12 +54,11 @@ full <- data.frame(mod = unique(m_periods$mod),
 m_periods[, term := factor(m_periods$term)]
 m_periods[, mod := factor(mod, levels = part_age_groups, labels = part_age_labs)]
 m_periods <- rbind(m_periods, full)
-m_periods[, term := factor(term, levels = dates$study_period)]
+m_periods[, term := factor(term, levels = study_periods)]
 m_periods[, sample_type := ifelse(as.character(mod) %in% c("0-4", "5-17"), "Children", "Adults")]
 m_periods[, sample_type := factor(sample_type, levels = c("Adults", "Children"))]
 m_periods[, mod := factor(mod, levels = part_age_groups)]
-  
-  
+
 # Plot output ------------------
 avg_conts_rr2_facet <- ggplot(m_periods[],
                               aes(x = term, y = rr, color = mod)) +
@@ -68,20 +69,27 @@ avg_conts_rr2_facet <- ggplot(m_periods[],
                 width = 0.05,
                 size  = 0.8,
                 position = position_dodge(width = 0.3)) +
-  facet_grid(vars(sample_type)) +
+  facet_grid(vars(sample_type), scales = "free_y") +
   scale_color_manual(values = cols, aesthetics = "color") +
   xlab("Study period") +
   ylab("Relative difference") +
-  labs(color = "Participant age group") +
-  
-  theme_bw() +
+  labs(color = "Participant age") +
+  ylim(c(0.75, NA)) +
   theme(plot.title = element_text(size = 10, face = "bold"),
-        axis.title.x = element_text(size = 9),
-        axis.title.y = element_text(size = 9),
-        legend.title = element_text(size = 9),
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)
+        legend.position = c(0.075, 0.85),
+        legend.title = element_text(size = 10, face = ),
+        panel.spacing.y =  unit(1, "lines"),
+        panel.grid.major.x = element_line(color= "grey", size = 0.25),
+        panel.grid.major.y = element_line(color= "grey", size = 0.25),
+        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10, angle = 45, vjust = 1, hjust=1)
   )
-avg_conts_rr2_facet 
+avg_conts_rr2_facet
+
+ggsave(avg_conts_rr2_facet, 
+       filename = file.path("outputs", gsub("\\.qs", "_plot\\.png", cis_filename)),
+       width = 7, height = 6)
 
 
 rd_table <- m_periods
@@ -98,8 +106,9 @@ rd_table[term == "Lockdown 1", val_summary := "ref"]
 rd_table[, mod := paste("Ages", mod, "years")]
 
 rd_wide <- dcast(data = rd_table, term ~ mod)
+rd_wide[, term := factor(term, study_period, levels = study_periods)]
 setnames(rd_wide, c("term"), c("Study period"))
-rd_wide
+rd_wide <- rd_wide[order(`Study period`)]
 
 
 write.csv(rd_wide, "outputs/relative_difference_table.csv")

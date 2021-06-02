@@ -14,11 +14,9 @@ library(lubridate)
 source('r/functions/bs_group.R')
 
 # Load participant data ---------------------------------------------------
-p1 <- qs::qread('data/dt_1w.qs')
-pdt <- qs::qread('data/dt_2w.qs')
+pdt <- qs::qread('data/dt_2w_weighted.qs')
 
 
-p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 
 # Add attitude likert bins
@@ -73,13 +71,19 @@ for(i in c("60+", "18-59")){
 
 dt_boot[, n := round(median(N)), by = .(part_age_group, part_region, part_gender, part_social_group, part_high_risk, start_date, mid_date, end_date)]
 
-mea_vars <- c("All", "Home", "Work", "Work/Educ", "Other",
-              "Physical",
-              "Inside",
-              "Outside",
-              "Other house",
-              "Supermarket",
-              "Bar restaurant")
+# Remove non-weighted settings to avoid errors
+dt_boot[, -c("All", "Home", "Work", "Work/Educ", "Other", "Non household"), with = F]
+mea_vars <- c(
+  # "All", "Home", "Work", "Work/Educ", "Other", "Non household",
+  "All_genderage", "Home_genderage", "Work_genderage", 
+  "Work/Educ_genderage", "Other_genderage", "Non household_genderage"
+  # "Physical",
+  # "Inside",
+  # "Outside",
+  # "Other house",
+  # "Supermarket",
+  # "Bar restaurant"
+)
 
 
 l_dt <- melt(dt_boot, id.vars = c("part_age_group", "part_region", "part_gender", "part_work_place",

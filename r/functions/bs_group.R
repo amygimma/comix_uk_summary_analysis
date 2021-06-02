@@ -96,17 +96,13 @@ bs_group <- function(dt,
   }
   
   # Subset by social group --------------------------------------------------
-  # browser()
   socgroupname <- soc_group_
   if(soc_group_ == "All"){
     soc_group_ <- c(NA, "B - Middle class", "C2 - Skilled working class", 
                     "E - Lower level of subsistence", "C1 - Lower middle class", 
                     "D - Working class", "A - Upper middle class"
     )
-  } 
-  
-  
-  if (soc_group_ == "ABC1") {
+  } else if (soc_group_ == "ABC1") {
     soc_group_ <- c("A - Upper middle class", "B - Middle class", "C1 - Lower middle class")
     message(soc_group_)
   } else if (soc_group_ == "C2DE") {
@@ -143,7 +139,8 @@ bs_group <- function(dt,
     att_serious_bin_ <- c(NA, "Agree", "Disagree", "Neutral")
   } 
   
-  dt <- dt[area %in% area_ & part_age_group %in% age_ & 
+  dt <- dt[area %in% area_ & 
+             part_age_group %in% age_ & 
              part_gender %in% gender_ &
              part_social_group %in% soc_group_ & 
              part_high_risk %in% risk_group_ &
@@ -152,29 +149,29 @@ bs_group <- function(dt,
              part_att_serious_bin %in% att_serious_bin_ &
              part_income %in% income_ & 
              part_employed %in% employ_ &
-             part_work_place %in% workplace_, 
+             part_work_place %in% workplace_ & 
              hh_size_group %in% hh_size_group_
-           ]
-
+  ]
+  
+ 
   bs_list <- list()
   for(i in 1:sims){
     pids <- unique(dt$part_id)
     nsamp <- length(pids)*prop
     df_samp <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
+    # message(paste("pids", length(pids)))
     
     tryCatch({
       samp1 <- merge(df_samp, dt, by = "part_id")
       
     }, error = function(error_condition) {
-
+      
       message("Resampling for merge error")
       message(paste("Error message:", error_condition, sep = "\n"))
       
-      # ns <- c("part_id", "part_social_group")
-      # part_id_ <- df_samp$part_id[133]
       df_samp2 <- data.table(part_id = sample(pids, replace = TRUE, size = nsamp))
       samp1 <- merge(df_samp2, dt, by = "part_id")
-  
+      
     })
     
     bs_dt <- samp1[, .(
@@ -187,7 +184,7 @@ bs_group <- function(dt,
       part_income = incomename,
       part_employed = employname,
       part_work_place = workplacename,
-      hh_size_group_ = hhsizegroupname,
+      hh_size_group = hhsizegroupname,
       part_att_spread_bin = attspreadname,
       part_att_likely_bin = attlikelyname,
       part_att_serious_bin = attseriousname,
@@ -205,7 +202,10 @@ bs_group <- function(dt,
       `Work/Educ_genderage` = weighted.mean(n_cnt_workschool,  w = dayweight * genderageweight_raw),
       
       Other = weighted.mean(n_cnt_other,  w = dayweight),
-      Other_genderage = weighted.mean(n_cnt_other, w = dayweight * genderageweight_raw)
+      Other_genderage = weighted.mean(n_cnt_other, w = dayweight * genderageweight_raw),
+      
+      `Non household` = weighted.mean(n_cnt_non_household,  w = dayweight),
+      `Non household_genderage` = weighted.mean(n_cnt_non_household, w = dayweight * genderageweight_raw)
       
       
       # Physical = weighted.mean(n_cnt_phys,  w = dayweight),
@@ -214,9 +214,9 @@ bs_group <- function(dt,
       # `Other house` = weighted.mean(n_cnt_other_house,  w = dayweight),
       # `Supermarket` = weighted.mean(n_cnt_supermarket,  w = dayweight),
       # `Bar restaurant` = weighted.mean(n_cnt_bar_rest,  w = dayweight)
-      ),
-      by = .(start_date, mid_date, end_date, survey_round)
-      ]
+    ),
+    by = .(start_date, mid_date, end_date, survey_round)
+    ]
     bs_list[[i]] <- bs_dt
   }
   rbindlist(bs_list)

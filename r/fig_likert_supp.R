@@ -39,10 +39,6 @@ older_adults <- c("60-69", "70-120")
 part[part_age_group %in% younger_adults, part_age_group_bin := "18-59"]
 part[part_age_group %in% older_adults, part_age_group_bin := "60+"]
 
-adults_id <- part[sample_type == "adult" &
-                    !area_3_name %in% c("Scotland", "Northern Ireland", "Wales") &
-                    country == "uk" &
-                    !survey_round %in% c(6,7),]$part_wave_uid
 
 part <- part[part_wave_uid %in% adults_id ]
 part[ ,  start_date := min(date), by = .(panel, survey_round) ]
@@ -58,19 +54,27 @@ part[, part_high_risk := map_hr[part_high_risk]]
 
 
 dt <- part
+dt <- dt[date >= as.Date("2020-03-23") & date <= as.Date("2021-03-26")]
+dt[area_3_name %in% c("Yorkshire and The Humber", "North East"), area := "North East and Yorkshire"]
+dt[area_3_name %in% c("East Midlands", "West Midlands"), area := "Midlands"]
+area_3_england <- c("South East", "North West", "West Midlands", "East Midlands", 
+                    "South West", "Greater London", "North East", "Yorkshire and The Humber", 
+                    "East of England")
+dt <- dt[country == "uk" & area_3_name %in% area_3_england]
+
+
 
 # Attitudes ---------------------------------------------------------------
 cols_1 <- c('#ccebc5','#a8ddb5','#7bccc4','#43a2ca','#0868ac')
 cols_1 <- c("#055a8c", "#d72638", "#17877b", "#daa520", "#20bdcc", "#010f5b")
-plotter_lk <- function(var, lab, cols_ = cols_1) {
-  # browser()
+plotter_lk <- function(var, lab, cols_ = cols_1, bin_levs = c("Agree", "Neutral", "Disagree")) {
   p1 <- dt[ !is.na(get(var))& !get(var) %in% c("no answer", "Don’t know", "unknown")]
   dt[, part_total_responses := .N, by = part_id]
   p2 <- p1[, .N, by = .(get(var), mid_date,survey_round, part_age_group)]
   p2[, perc := N / sum(N), by = .(mid_date, survey_round, part_age_group)]
   p2[, type := "Everyone"]
   p2[, part_age_group := paste("Ages", part_age_group)]
-  bin_levs <- c("Agree", "Neutral", "Disagree")
+
   if (var %like% "part_att") p2[, get := factor(get, levels = bin_levs)]
   ggplot(p2, aes(x = mid_date, fill = factor(get))) +
     geom_area(aes(y = perc)) +
@@ -79,10 +83,13 @@ plotter_lk <- function(var, lab, cols_ = cols_1) {
     scale_x_date(breaks = "3 months", date_labels = "%b") +
     expand_limits(x = expand_dates) +
     scale_fill_discrete(name = "", type = cols_) +
-    theme(legend.position = "top", legend.direction = "horizontal") +
-    guides(guide_legend(label.position = "top")) +
+    theme(legend.position = "top", 
+          # legend.direction = "horizontal",
+          legend.text = element_text(size = 8.5)) +
     labs(fill = lab) +
-    labs(x = "", y = "", subtitle = lab) 
+    labs(x = "", y = "", subtitle = lab) +
+    guides(guide_legend(label.position = "top", ncol = 3, nrow = 2)) 
+    
 }
 
 cols <- cols_1[c(5,1,6)]
@@ -114,5 +121,37 @@ height = 10, width = 12)
 #   facet_wrap(vars(mid_date)) +
 #   theme()
 
+cols <- rev(c( "#D7402B", "#055a8c", "#daa520", "#20bdcc", "#010f5b", 
+               "#17877b"))
 
+bin_levs <- c("Strongly agree","Tend to agree", "Neither agree nor disagree","Tend to disagree",  
+  "Strongly disagree",  NA)
+lk_spread_p  <- plotter_lk("part_att_spread", 
+                           lab = 'A. I am worried that I might spread coronavirus to someone who is vulnerable',
+                           cols_ = cols, 
+                           bin_levs = bin_levs) 
+lk_likely_p  <- plotter_lk("part_att_likely",  
+                           lab = 'B. I am likely to catch coronavirus', 
+                           cols_ = cols, 
+                           bin_levs = bin_levs)
+lk_serious_p <- plotter_lk("part_att_serious",
+                           lab = 'C. Coronavirus would be a serious illness for me',
+                           cols_ = cols, 
+                           bin_levs = bin_levs)
+
+cols <- c("#17877b", "#D7402B", "#055a8c", "#daa520", "#20bdcc", "#010f5b", 
+          "#d72638")
+cols <- c(cols_1[c(6,5)])
+lk_hr_p      <- plotter_lk("part_high_risk",  lab = "D. High risk participant", 
+                           cols_ =  cols, 
+                           bin_levs = c("Yes", "No"))
+
+
+perc_proportions <- (lk_spread_p + lk_likely_p + lk_serious_p + lk_hr_p ) +
+  plot_layout()
+
+perc_proportions
+
+ggsave(plot = perc_proportions, filename = "outputs/perception_proportions_c2_all.png",
+       height = 9, width = 14)
 

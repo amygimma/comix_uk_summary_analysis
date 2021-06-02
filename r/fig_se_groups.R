@@ -352,7 +352,7 @@ sc_g2_dt  <-  sc_g2_dt[
     part_income == "All" & 
     part_work_place == "All" & 
     part_employed == "All" &
-    setting == "All"]
+    setting == "All_genderage"]
 
 upper_limit <- 7.5
 ylabel <- upper_limit - 0.5
@@ -413,7 +413,7 @@ inc_dt <-  dts_rec[
     part_income != "All" & 
     part_work_place == "open" & 
     part_employed == "All" &
-    setting == "All"]
+    setting == "All_genderage"]
  
 
 upper_limit <- 10

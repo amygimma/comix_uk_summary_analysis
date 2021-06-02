@@ -81,14 +81,14 @@ ci_gam <- function(mod, level = 0.95) {
 formulas <- list(
   # list(form = formula(n_cnt ~ study_period),
   #      mod_ref = "study_period"),
-  # list(form = formula(n_cnt ~ study_period + d s(part_id, bs = "re")),
-  #      mod_ref = "study_period_re-part_id"),
+  list(form = formula(n_cnt ~ study_period + s(part_id, bs = "re")),
+       mod_ref = "study_period_re-part_id")
   # list(form = formula(n_cnt ~ study_period + s(part_id, by = study_period, bs = "re")),
   #      mod_ref = "study_period_re-part_id-by-study_period"),
-  list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs") + s(part_id, bs = "re")),
-       mod_ref = "sp__s-study_period-fs__re-part_id-by-study_period"),
-  list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
-       mod_ref = "sp__s-study_period-fs")
+  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs") + s(part_id, bs = "re")),
+  #      mod_ref = "sp__s-study_period-fs__re-part_id-by-study_period"),
+  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
+  #      mod_ref = "sp__s-study_period-fs"),
   # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
   #      mod_ref = "study_period__re-part_id-by-study_period")
 )
@@ -142,37 +142,6 @@ for (j in 1:length(formulas)) {
   m_periods[, sample_type := ifelse(as.character(mod) %in% c("0-4", "5-17"), "Children", "Adults")]
   m_periods[, sample_type := factor(sample_type, levels = c("Adults", "Children"))]
   m_periods[, mod := factor(mod, levels = part_age_groups)]
-  
-  
-  # Plot output ------------------
-  avg_conts_rr2_facet <- ggplot(m_periods[],
-                                   aes(x = term, y = rr, color = mod)) +
-    geom_hline(yintercept = 1, color = '#f79b57') +
-    geom_point(shape = 15, size  = 1.5, position = position_dodge(width = 0.3)) +
-    geom_errorbar(aes(ymin = lci,
-                      ymax = uci),
-                  width = 0.05,
-                  size  = 0.8,
-                  position = position_dodge(width = 0.3)) +
-    facet_grid(vars(sample_type), scales = "free_y") +
-    scale_color_manual(values = cols, aesthetics = "color") +
-    xlab("Study period") +
-    ylab("Relative difference") +
-    labs(color = "Participant age group") +
-    
-    theme_bw() +
-    theme(plot.title = element_text(size = 10, face = "bold"),
-          axis.title.x = element_text(size = 9),
-          axis.title.y = element_text(size = 9),
-          legend.title = element_text(size = 9),
-          axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)
-    )
-  
-  # Save files
-  plot_fname <- paste0("cnt_rr_mod_", mod_ref, ".png")
-  ggsave(avg_conts_rr2_facet, filename = file.path("outputs", plot_fname), 
-         width = 9, height = 8)
-  message(plot_fname)
 
   mod_fname <- paste0("mod_raw_", mod_ref, ".qs")
   qs::qsave(mod_raw, file.path("data", mod_fname))
@@ -195,3 +164,32 @@ for (j in 1:length(formulas)) {
 # visibly::plot_gam(mod_raw[[3]], main_var = study_period)
 # visibly::plot_gam_check(mod_raw_s[[3]])
 # 
+# Plot output ------------------
+# avg_conts_rr2_facet <- ggplot(m_periods[],
+#                               aes(x = term, y = rr, color = mod)) +
+#   geom_hline(yintercept = 1, color = '#f79b57') +
+#   geom_point(shape = 15, size  = 1.5, position = position_dodge(width = 0.3)) +
+#   geom_errorbar(aes(ymin = lci,
+#                     ymax = uci),
+#                 width = 0.05,
+#                 size  = 0.8,
+#                 position = position_dodge(width = 0.3)) +
+#   facet_grid(vars(sample_type), scales = "free_y") +
+#   scale_color_manual(values = cols, aesthetics = "color") +
+#   xlab("Study period") +
+#   ylab("Relative difference") +
+#   labs(color = "Participant age group") +
+#   
+#   theme_bw() +
+#   theme(plot.title = element_text(size = 10, face = "bold"),
+#         axis.title.x = element_text(size = 9),
+#         axis.title.y = element_text(size = 9),
+#         legend.title = element_text(size = 9),
+#         axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)
+#   )
+# 
+# # Save files
+# plot_fname <- paste0("cnt_rr_mod_", mod_ref, ".png")
+# ggsave(avg_conts_rr2_facet, filename = file.path("outputs", plot_fname), 
+#        width = 9, height = 8)
+# message(plot_fname)

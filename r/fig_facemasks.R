@@ -37,7 +37,7 @@ plot_fm_prop <- function(dt, time_break = "2 month", upper_limit = 1){
     labs(title = "", y = "Proportion of participants", x = "") +
     scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
     expand_limits(y = 0) +
-    scale_x_date(breaks = time_break, date_labels = "%b", name = "") +
+    scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
     expand_limits(x = expand_dates) + 
     theme(
       panel.spacing.y =  unit(1, "lines"),
@@ -93,7 +93,11 @@ fm_plot <-
   plot_fm_prop(dt, time_break = "2 months", upper_limit = upper_lim) +
   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
+  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) +
+  geom_vline(xintercept=as.Date("2020-07-24"),linetype=4, alpha = 0.25) +
+  # geom_text( position = c(0.4, 0.95))
+  annotate("text", x = as.Date("2020-07-24"), y = ylabel, label = "24 July 2020", size = timeline_size, color = "darkgrey") 
+  
   # annotate("text", x = as.Date("2020-08-15"), y = ylabel, label = "Reduced restrictions", size = timeline_size) + 
   # ggtitle("A") 
 

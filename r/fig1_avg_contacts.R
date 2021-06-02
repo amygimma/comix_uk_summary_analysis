@@ -12,6 +12,7 @@ library(ggplot2)
 library(patchwork)
 library(ggthemr)
 library(ggthemes)
+library(openxlsx)
 # source("r/functions/ggthemr_workaround.R")
 
 theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = element_blank()))
@@ -45,25 +46,21 @@ age_labs <- c("0-4", "5-17", "18-59", "60+")
 weighted_settings <- c("All_genderage", "Home_genderage", "Work_genderage", 
                "Work/Educ_genderage", "Other_genderage")
 setting_labels <- c("All", "Home", "Work", "Work/Educ", "Other")
+dt[, setting := as.character(setting)]
+
+# Remove unweighted settings -------------------
+dt <- dt[setting %in% weighted_settings]
 dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
 dt[, setting := as.character(setting)]
 dt <- dt[setting %in% weighted_settings]
+dt <- dt[mid_date >= as.Date("2020-03-23") & mid_date <= as.Date("2021-03-26")]
 
+# Reassign weighted settings to label friendly categories -------------
+table(dt$setting)
 dt[, setting := factor(setting, levels = weighted_settings, labels = setting_labels)]
+labels(dt$setting)
 
-# 
-# dt[, part_social_group_lab := factor(part_social_group,
-#                                      levels = c("All", 
-#                                                 "A - Upper middle class", 
-#                                                 "B - Middle class", 
-#                                                 "C1 - Lower middle class", 
-#                                                 "C2 - Skilled working class",
-#                                                 "D - Working class",
-#                                                 "E - Lower level of subsistence"),
-#                                      labels = c("All", "A", "B", "C1", "C2", "D", "E"))]
-# 
 
-table(dt$part_att_serious_bin)
 
 # Set plot parameters -----------------------------------------------------
 expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
@@ -189,6 +186,8 @@ all_setting_p <- plot_mean_setting(all_setting, time_break = "month", upper_limi
 all_setting_p
 
 # ggsave(all_setting_p, filename = "outputs/all_setting.png", height = 6, width = 9)
+
+
 
 # Plot C: Count data ------------------------------------------------------
 
@@ -385,3 +384,38 @@ fig1v4 <- ((hosp_p + ggtitle("A")) /
 fig1v4
 
 ggsave(fig1v4, filename = "outputs/fig1v4.png", width = 11 , height = 13)
+
+
+# Tables -----------------
+all_age[, summary_val := paste0(formatC(mean, digits = 2, format = "f"),
+                                " (", 
+                                formatC(lci, digits = 2, format = "f"),
+                                "-", 
+                                formatC(uci, digits = 2, format = "f"),
+                                ")")]
+openxlsx::write.xlsx(all_age, file.path("outputs", "mean_contacts_age_date_raw.xlsx"))
+
+all_age_t <- all_age[, c("part_age_group", "mid_date", "summary_val"), with = F]
+all_age_t[, part_age_group := paste("Ages", part_age_group, "years")]
+all_age_w <- dcast(data = all_age_t, formula = mid_date ~ part_age_group, value.var = "summary_val")
+setnames(all_age_w, "mid_date", "Date")
+all_age_w <- all_age_w[, list(`Date`, `Ages 0-4 years`, `Ages 5-17 years`,
+                              `Ages 18-59 years`, `Ages 60+ years`)]
+write.csv(all_age_w, file.path("outputs", "mean_contacts_age_date_summary.csv"), row.names = F)
+openxlsx::write.xlsx(all_age_w, file.path("outputs", "mean_contacts_age_date_summary.xlsx"))
+
+
+
+age_summ <- all_age[, 
+                    .(min = formatC(min(mean), digits = 2, format = "f"), 
+                      max = formatC(max(mean), digits = 2, format = "f")
+                    ), 
+                    by = "part_age_group"]
+age_summ
+
+min_max_ages <- all_age[order(mean)][, 
+                                     .(
+                                       min_summary = first(summary_val),
+                                       max_summary = last(summary_val)), 
+                                     by = c("part_age_group")]
+min_max_ages[order(part_age_group)]

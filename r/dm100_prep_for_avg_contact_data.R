@@ -143,8 +143,11 @@ dt[, dayweight := fifelse(weekday %in% c("Sun", "Sat"), 2/7, 5/7)]
 
 dt[, n_cnt := pmin(n_cnt, 50)]
 dt[, n_cnt_home := pmin(n_cnt_home, 50)]
+dt[, n_cnt_work := pmin(n_cnt_work + n_cnt_school, 50)]
 dt[, n_cnt_workschool := pmin(n_cnt_work + n_cnt_school, 50)]
 dt[, n_cnt_other := pmin(n_cnt_other, 50)]
+dt[, n_cnt_non_household := pmin(n_cnt_non_household, 50)]
+
 
 
 
@@ -155,6 +158,7 @@ dt[, n_cnt_supermarket := pmin(n_cnt_supermarket, 50)]
 dt[, n_cnt_bar_rest := pmin(n_cnt_bar_rest, 50)]
 dt[, n_cnt_other_house := pmin(n_cnt_other_house, 50)]
 dt[, n_cnt_phys := pmin(n_cnt_phys, 50)]
+
 
 
 
@@ -195,6 +199,8 @@ vars <- c(
   "part_age_est_min",
   "part_social_group",
   "part_gender",
+  "hh_size",
+  "hh_size_group",
   # Risk
   "part_high_risk",
   "part_att_spread",
