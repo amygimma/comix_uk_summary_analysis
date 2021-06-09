@@ -21,6 +21,7 @@ file_path <- file.path("data", "bs_means_2w_risk.qs")
 dt <- qs::qread(file_path)
 dt[, part_age_group_lab := paste("Ages", part_age_group)]
 
+dt <- dt[mid_date >= as.Date("2020-03-23") & mid_date <= as.Date("2021-03-26")]
 
 message(paste("read from:", file_path))
 table(dt$boots)

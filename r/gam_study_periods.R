@@ -1,9 +1,10 @@
-## Name: 
-## Description:
+## Name: gam_study_periods.R
+## Description: Runs gam function with given formula on two-week weighted 
+## contact means by study period
 
-## Input file: dt_1w and dt_2w
-## Functions: 
-## Output file: 
+## Input file: dt_2w_weighted.qs
+## Functions: gam_wrap, ci_gam
+## Output file: "mod_cis_[MODEL_REFERENCE_NAME].qs"
 set.seed(23032021)
 # Packages ----------------------------------------------------------------
 library(data.table)
@@ -13,10 +14,8 @@ library(ggplot2)
 
 
 # Load participant data ---------------------------------------------------
-p1 <- qs::qread('data/dt_1w.qs')
 pdt <- qs::qread('data/dt_2w_weighted.qs')
 
-p1  <-  p1[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 pdt <- pdt[!area %in% c("Scotland", "Northern Ireland", "Wales")]
 
 dates <- readxl::read_xlsx(file.path("data", "table1_dates.xlsx"), sheet = 2)
@@ -49,8 +48,6 @@ pdt[, part_age_group := factor(part_age_group, levels = c("0-4", "5-17", "18-59"
 table(pdt$part_age_group, useNA = "always")
 
 # Check data ---------
-var(p1$n_cnt)
-summary(p1$n_cnt)
 by( pdt$n_cnt, pdt$study_period, var)
 by(pdt$n_cnt, pdt$study_period , summary)
 
@@ -79,18 +76,8 @@ ci_gam <- function(mod, level = 0.95) {
 # Formulas ------------------------------------------
 
 formulas <- list(
-  # list(form = formula(n_cnt ~ study_period),
-  #      mod_ref = "study_period"),
   list(form = formula(n_cnt ~ study_period + s(part_id, bs = "re")),
        mod_ref = "study_period_re-part_id")
-  # list(form = formula(n_cnt ~ study_period + s(part_id, by = study_period, bs = "re")),
-  #      mod_ref = "study_period_re-part_id-by-study_period"),
-  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs") + s(part_id, bs = "re")),
-  #      mod_ref = "sp__s-study_period-fs__re-part_id-by-study_period"),
-  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
-  #      mod_ref = "sp__s-study_period-fs"),
-  # list(form = formula(n_cnt ~ study_period + s(study_period, bs = "fs")),
-  #      mod_ref = "study_period__re-part_id-by-study_period")
 )
 
 # Run models -----------------------------
@@ -111,8 +98,7 @@ for (j in 1:length(formulas)) {
     pdtage <- pdt[as.character(part_age_group) == age_group]
     mod_subset <- gam_wrap(form, link = "log", data = pdtage)
     mod_raw[[i]] <- mod_subset
-    # browser()
-    
+
     mod_ci <- ci_gam(mod_subset)
     mod_ci[, mod := age_group]
     mods[[i]] <- mod_ci
@@ -151,45 +137,3 @@ for (j in 1:length(formulas)) {
   qs::qsave(cis, file.path("data", cis_fname))
   message(cis_fname)
 }
-
-# Check model
-
-# plot(mod_raw[[3]], shade = TRUE, pages = 1, scale = 0)
-# summary(mod_raw[[3]])
-# gam.check(mod_raw[[3]])
-# 
-# # devtools::install_github("m-clark/visibly")
-# library(visibly)
-# mod_raw[[3]][[1]] 
-# visibly::plot_gam(mod_raw[[3]], main_var = study_period)
-# visibly::plot_gam_check(mod_raw_s[[3]])
-# 
-# Plot output ------------------
-# avg_conts_rr2_facet <- ggplot(m_periods[],
-#                               aes(x = term, y = rr, color = mod)) +
-#   geom_hline(yintercept = 1, color = '#f79b57') +
-#   geom_point(shape = 15, size  = 1.5, position = position_dodge(width = 0.3)) +
-#   geom_errorbar(aes(ymin = lci,
-#                     ymax = uci),
-#                 width = 0.05,
-#                 size  = 0.8,
-#                 position = position_dodge(width = 0.3)) +
-#   facet_grid(vars(sample_type), scales = "free_y") +
-#   scale_color_manual(values = cols, aesthetics = "color") +
-#   xlab("Study period") +
-#   ylab("Relative difference") +
-#   labs(color = "Participant age group") +
-#   
-#   theme_bw() +
-#   theme(plot.title = element_text(size = 10, face = "bold"),
-#         axis.title.x = element_text(size = 9),
-#         axis.title.y = element_text(size = 9),
-#         legend.title = element_text(size = 9),
-#         axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)
-#   )
-# 
-# # Save files
-# plot_fname <- paste0("cnt_rr_mod_", mod_ref, ".png")
-# ggsave(avg_conts_rr2_facet, filename = file.path("outputs", plot_fname), 
-#        width = 9, height = 8)
-# message(plot_fname)

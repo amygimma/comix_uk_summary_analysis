@@ -16,21 +16,24 @@ theme_set(cowplot::theme_cowplot(font_size = 11) + theme(strip.background = elem
 
 dts <- qs::qread("data/bs_means_2w_se.qs")
 
-dts[, table(setting)]
-dts[, table(part_age_group, part_gender)]
-dts[, table(part_region, part_age_group)]
-dts[, table(part_age_group, part_social_group)]
-dts[, table(part_income)]
-dts[, table(part_high_risk)]
-dts[, table(part_work_place)]
-dts[, table(part_employed)]
+# dts[, table(setting)]
+# dts[, table(part_age_group, part_gender)]
+# dts[, table(part_region, part_age_group)]
+# dts[, table(part_age_group, part_social_group)]
+# dts[, table(part_income)]
+# dts[, table(part_high_risk)]
+# dts[, table(part_work_place)]
+# dts[, table(part_employed)]
 
 
 age_levs <- c("All", "All-adults",  "0-4", "5-11", "12-17", "18-29", "30-39", "40-49",  "50-59", 
               "60-69", "70-120", "18-59", "60+")
 age_labs <- c("All", "All-adults",  "0-4", "5-11", "12-17", "18-29", "30-39", "40-49",  "50-59", 
               "60-69", "70+", "18-59", "60+")
-
+settings_ <- c("All", "Home", "Work/Educ", "Other",
+               "All_genderage", "Home_genderage", "Work_genderage", 
+               "Work/Educ_genderage", "Other_genderage")
+dt <- dt[mid_date >= as.Date("2020-03-23") & mid_date <= as.Date("2021-03-26")]
 dts[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
 dts[, setting := factor(setting, levels = settings_)]
 
@@ -79,9 +82,7 @@ plotdate <- paste0(plotdate,"_all")
 date_labs = "%d-%b-%y"
 dir.create(paste0("outputs/", plotdate), showWarnings = FALSE)
 
-settings_ <- c("All", "Home", "Work/Educ", "Other",
-               "All_genderage", "Home_genderage", "Work_genderage", 
-               "Work/Educ_genderage", "Other_genderage")
+
 
 cols <- c("#17877b", "#055a8c", "#D7402B", "#daa520", "#20bdcc", "#010f5b", "#d72638")
 
@@ -280,248 +281,248 @@ cols <- c("#17877b", "#055a8c", "#D7402B", "#daa520", "#20bdcc", "#010f5b", "#d7
 
 # Plot sc adults ------------------------------------------------------------
 
-sc_dt <-  dts_rec[
-    part_age_group %in% c("All-adults") &
-    part_social_group != "All" &
-    part_income == "All" & 
-    part_work_place == "All" & 
-    part_employed == "All" &
-    setting == "All_genderage"]
- 
-upper_limit <- 7.5
-ylabel <- upper_limit - 0.5
-timeline_size <- 1.75
-sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci), fill = cols[6], alpha = 0.3) +
-  geom_line( aes(y = mean), color = cols[6]) +
-  scale_color_manual(values = cols) +
-  scale_fill_manual(values = cols) +
-  facet_wrap(vars(part_social_group) , ncol = 3 ) +
-  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
-  expand_limits(x = expand_dates) + 
-  theme(
-    panel.spacing.y =  unit(1, "lines"),
-    # legend.position = c(0.05, 0.9),
-    legend.position = "none",
-    # legend.title=element_text(size=12),
-    # legend.text=element_text(size=10)
-    panel.grid.major = element_line(colour="grey", size=0.05),
-    axis.text.x = element_text(size = 6.5)
-  ) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  guides(fill=guide_legend(title="Socioeconomic group"), 
-         color = guide_legend(title="Socioeconomic group")) +
-  annotate("rect",
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[5], xmax = study_dates[6],
-  #          ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
-  annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
-  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
-  # ggtitle("A")
-sc_p
-sc_adults_name <- "outputs/sc_adults_all.png"
-ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
-
-
-# Social group 2 
-sc_g2_dt <- qs::qread("data/bs_means_2w_sg2.qs")
-# Set the dates for the graphs --------------------------------------------
-sc_g2_dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
-sc_g2_dt[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other", "School", "Work"))]
-
-
-sc_g2_dt <- sc_g2_dt[mid_date >= as.Date("2020-02-01") & mid_date <= as.Date("2021-03-23")]
-
-sc_g2_dt  <-  sc_g2_dt[
-  part_region %in% c("All") &
-    part_age_group %in% c("18-59", "60+") &
-    part_gender == "All" &
-    part_social_group != "All" &
-    part_high_risk == "All" & 
-    part_income == "All" & 
-    part_work_place == "All" & 
-    part_employed == "All" &
-    setting == "All_genderage"]
-
-upper_limit <- 7.5
-ylabel <- upper_limit - 0.5
-timeline_size <- 3.5
-scg2_p <-  ggplot(sc_g2_dt , aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_social_group), alpha = 0.3) +
-  geom_line( aes(y = mean, color = part_social_group)) +
-  scale_color_manual(values = cols[c(2,1)]) +
-  scale_fill_manual(values = cols[c(2,1)]) +
-  facet_grid(vars(part_age_group)) +
-  # theme_bw() +
-  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
-  expand_limits(x = expand_dates) + 
-  expand_limits(y = 0) +
-  theme(
-    panel.spacing.y =  unit(1, "lines"),
-    # legend.background = 
-    # legend.position = "none",
-    # legend.title=element_text(size=12),
-    legend.position = c(0.55, 0.875),
-    legend.direction = "horizontal",
-    legend.text=element_text(size=12)
-  ) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  guides(fill=guide_legend(title="Socioeconomic group"), 
-         color = guide_legend(title="Socioeconomic group")) +
-  annotate("rect",
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[5], xmax = study_dates[6],
-  #          ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
-  annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size)
-# annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
-# ggtitle("A")
-scg2_p 
-sc_adults_name <- "outputs/sc_sg2_adults.png"
-ggsave(scg2_p , filename = sc_adults_name, width = plot_width, height = 6)
-
-# Income work open ---------------------------------------------------------------
-
-
-inc_dt <-  dts_rec[
-  part_region %in% c("All") &
-    part_age_group %in% c("All-adults") &
-    part_gender == "All" &
-    part_social_group == "All" &
-    part_high_risk == "All" & 
-    part_income != "All" & 
-    part_work_place == "open" & 
-    part_employed == "All" &
-    setting == "All_genderage"]
- 
-
-upper_limit <- 10
-ylabel <- upper_limit - 1
-timeline_size <- 3.5
-inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.3) +
-  geom_line( aes(y = mean, col = part_income)) +
-  # facet_grid( rows = vars(part_income)) +
-  scale_color_manual(values = cols) +
-  scale_fill_manual(values = cols) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  expand_limits(x = expand_dates) + 
-  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
-  expand_limits(x = expand_dates) + 
-  theme(
-    panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.45, 0.80),
-    # legend.position = "none",
-    legend.title=element_text(size=12),
-    legend.text=element_text(size=10),
-    legend.direction = "horizontal",
-    panel.grid.major = element_line(colour="grey", size=0.05),
-    axis.text.x = element_text(size = 6.5)
-  ) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  guides(fill=guide_legend(title="Income"), 
-         color = guide_legend(title="Income")) +
-  annotate("rect",
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[5], xmax = study_dates[6],
-  #          ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
-  annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
-  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
-# ggtitle("A")
-
-inc_p
-inc_adults_name <- "outputs/inc_adults_work.png"
-ggsave(inc_p, filename = inc_adults_name, width = 9, height = 6)
-
-# Income work open ---------------------------------------------------------------
-
-
-emp_dt <-  dts_rec[
-  part_region %in% c("All") &
-    part_age_group %in% c("All-adults") &
-    part_gender == "All" &
-    part_social_group == "All" &
-    part_high_risk == "All" & 
-    part_income == "All" & 
-    part_work_place == "open" & 
-    part_employed != "All" &
-    setting == "Work_genderage"
-] 
-  
-upper_limit <- 31
-ylabel <- upper_limit - 2
-timeline_size <- 3.5
-emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
-  geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_employed), alpha = 0.3) +
-  geom_line( aes(y = mean, col = part_employed)) +
-  scale_color_manual(values = cols) +
-  scale_fill_manual(values = cols) +
-  scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
-  scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
-  guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment")) +
-  labs(title = "", y = "Mean contacts", x = "") +
-  theme(
-    panel.spacing.y =  unit(1, "lines"),
-    legend.position = c(0.35, 0.8),
-    legend.direction = "horizontal",
-    legend.title=element_text(size=12),
-    legend.text=element_text(size=10),
-    panel.grid.major = element_line(colour="grey", size=0.05),
-    axis.text.x = element_text(size = 6.5)
-  ) +
-  annotate("rect",
-           xmin = study_dates[1], xmax = study_dates[2],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[3], xmax = study_dates[4],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  # annotate("rect",
-  #          xmin = study_dates[5], xmax = study_dates[6],
-  #          ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("rect",
-           xmin = study_dates[7], xmax = study_dates[8],
-           ymin = 0, ymax = upper_limit, alpha = .1) +
-  annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
-  annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
-  annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
-  # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
-# ggtitle("A")
-
-emp_p
-emp_adults_name <- "outputs/emp_adults_work.png"
-ggsave(emp_p, filename = emp_adults_name, width = plot_width, height = 6)
+# sc_dt <-  dts_rec[
+#     part_age_group %in% c("All-adults") &
+#     part_social_group != "All" &
+#     part_income == "All" & 
+#     part_work_place == "All" & 
+#     part_employed == "All" &
+#     setting == "All_genderage"]
+#  
+# upper_limit <- 7.5
+# ylabel <- upper_limit - 0.5
+# timeline_size <- 1.75
+# sc_p <-  ggplot(sc_dt, aes(x = mid_date)) +
+#   geom_ribbon(aes(ymin = lci, ymax = uci), fill = cols[6], alpha = 0.3) +
+#   geom_line( aes(y = mean), color = cols[6]) +
+#   scale_color_manual(values = cols) +
+#   scale_fill_manual(values = cols) +
+#   facet_wrap(vars(part_social_group) , ncol = 3 ) +
+#   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+#   scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
+#   expand_limits(x = expand_dates) + 
+#   theme(
+#     panel.spacing.y =  unit(1, "lines"),
+#     # legend.position = c(0.05, 0.9),
+#     legend.position = "none",
+#     # legend.title=element_text(size=12),
+#     # legend.text=element_text(size=10)
+#     panel.grid.major = element_line(colour="grey", size=0.05),
+#     axis.text.x = element_text(size = 6.5)
+#   ) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   guides(fill=guide_legend(title="Socioeconomic group"), 
+#          color = guide_legend(title="Socioeconomic group")) +
+#   annotate("rect",
+#            xmin = study_dates[1], xmax = study_dates[2],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[3], xmax = study_dates[4],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   # annotate("rect",
+#   #          xmin = study_dates[5], xmax = study_dates[6],
+#   #          ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[7], xmax = study_dates[8],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
+#   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
+#   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
+#   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+#   # ggtitle("A")
+# sc_p
+# sc_adults_name <- "outputs/sc_adults_all.png"
+# ggsave(sc_p, filename = sc_adults_name, width = plot_width, height = 6)
+# 
+# 
+# # Social group 2 
+# sc_g2_dt <- qs::qread("data/bs_means_2w_sg2.qs")
+# # Set the dates for the graphs --------------------------------------------
+# sc_g2_dt[, part_age_group := factor(part_age_group, levels = age_levs, labels = age_labs)]
+# sc_g2_dt[, setting := factor(setting, levels = c("All", "Home", "Work/Educ", "Other", "School", "Work"))]
+# 
+# 
+# sc_g2_dt <- sc_g2_dt[mid_date >= as.Date("2020-02-01") & mid_date <= as.Date("2021-03-23")]
+# 
+# sc_g2_dt  <-  sc_g2_dt[
+#   part_region %in% c("All") &
+#     part_age_group %in% c("18-59", "60+") &
+#     part_gender == "All" &
+#     part_social_group != "All" &
+#     part_high_risk == "All" & 
+#     part_income == "All" & 
+#     part_work_place == "All" & 
+#     part_employed == "All" &
+#     setting == "All_genderage"]
+# 
+# upper_limit <- 7.5
+# ylabel <- upper_limit - 0.5
+# timeline_size <- 3.5
+# scg2_p <-  ggplot(sc_g2_dt , aes(x = mid_date)) +
+#   geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_social_group), alpha = 0.3) +
+#   geom_line( aes(y = mean, color = part_social_group)) +
+#   scale_color_manual(values = cols[c(2,1)]) +
+#   scale_fill_manual(values = cols[c(2,1)]) +
+#   facet_grid(vars(part_age_group)) +
+#   # theme_bw() +
+#   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+#   scale_x_date(breaks = time_break, date_labels = "%b %y", name = "") +
+#   expand_limits(x = expand_dates) + 
+#   expand_limits(y = 0) +
+#   theme(
+#     panel.spacing.y =  unit(1, "lines"),
+#     # legend.background = 
+#     # legend.position = "none",
+#     # legend.title=element_text(size=12),
+#     legend.position = c(0.55, 0.875),
+#     legend.direction = "horizontal",
+#     legend.text=element_text(size=12)
+#   ) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   guides(fill=guide_legend(title="Socioeconomic group"), 
+#          color = guide_legend(title="Socioeconomic group")) +
+#   annotate("rect",
+#            xmin = study_dates[1], xmax = study_dates[2],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[3], xmax = study_dates[4],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   # annotate("rect",
+#   #          xmin = study_dates[5], xmax = study_dates[6],
+#   #          ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[7], xmax = study_dates[8],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
+#   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
+#   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size)
+# # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+# # ggtitle("A")
+# scg2_p 
+# sc_adults_name <- "outputs/sc_sg2_adults.png"
+# ggsave(scg2_p , filename = sc_adults_name, width = plot_width, height = 6)
+# 
+# # Income work open ---------------------------------------------------------------
+# 
+# 
+# inc_dt <-  dts_rec[
+#   part_region %in% c("All") &
+#     part_age_group %in% c("All-adults") &
+#     part_gender == "All" &
+#     part_social_group == "All" &
+#     part_high_risk == "All" & 
+#     part_income != "All" & 
+#     part_work_place == "open" & 
+#     part_employed == "All" &
+#     setting == "All_genderage"]
+#  
+# 
+# upper_limit <- 10
+# ylabel <- upper_limit - 1
+# timeline_size <- 3.5
+# inc_p <-  ggplot(inc_dt, aes(x = mid_date)) +
+#   geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_income), alpha = 0.3) +
+#   geom_line( aes(y = mean, col = part_income)) +
+#   # facet_grid( rows = vars(part_income)) +
+#   scale_color_manual(values = cols) +
+#   scale_fill_manual(values = cols) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   expand_limits(x = expand_dates) + 
+#   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+#   scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
+#   expand_limits(x = expand_dates) + 
+#   theme(
+#     panel.spacing.y =  unit(1, "lines"),
+#     legend.position = c(0.45, 0.80),
+#     # legend.position = "none",
+#     legend.title=element_text(size=12),
+#     legend.text=element_text(size=10),
+#     legend.direction = "horizontal",
+#     panel.grid.major = element_line(colour="grey", size=0.05),
+#     axis.text.x = element_text(size = 6.5)
+#   ) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   guides(fill=guide_legend(title="Income"), 
+#          color = guide_legend(title="Income")) +
+#   annotate("rect",
+#            xmin = study_dates[1], xmax = study_dates[2],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[3], xmax = study_dates[4],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   # annotate("rect",
+#   #          xmin = study_dates[5], xmax = study_dates[6],
+#   #          ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[7], xmax = study_dates[8],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
+#   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
+#   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
+#   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+# # ggtitle("A")
+# 
+# inc_p
+# inc_adults_name <- "outputs/inc_adults_work.png"
+# ggsave(inc_p, filename = inc_adults_name, width = 9, height = 6)
+# 
+# # Income work open ---------------------------------------------------------------
+# 
+# 
+# emp_dt <-  dts_rec[
+#   part_region %in% c("All") &
+#     part_age_group %in% c("All-adults") &
+#     part_gender == "All" &
+#     part_social_group == "All" &
+#     part_high_risk == "All" & 
+#     part_income == "All" & 
+#     part_work_place == "open" & 
+#     part_employed != "All" &
+#     setting == "Work_genderage"
+# ] 
+#   
+# upper_limit <- 31
+# ylabel <- upper_limit - 2
+# timeline_size <- 3.5
+# emp_p <- ggplot(emp_dt, aes(x = mid_date)) +
+#   geom_ribbon(aes(ymin = lci, ymax = uci, fill = part_employed), alpha = 0.3) +
+#   geom_line( aes(y = mean, col = part_employed)) +
+#   scale_color_manual(values = cols) +
+#   scale_fill_manual(values = cols) +
+#   scale_x_date(breaks = time_break, date_labels = "%b '%y", name = "") +
+#   scale_y_continuous(expand = expansion(0), limits = c(0,upper_limit)) +
+#   guides(fill=guide_legend(title="Employment"), col = guide_legend(title="Employment")) +
+#   labs(title = "", y = "Mean contacts", x = "") +
+#   theme(
+#     panel.spacing.y =  unit(1, "lines"),
+#     legend.position = c(0.35, 0.8),
+#     legend.direction = "horizontal",
+#     legend.title=element_text(size=12),
+#     legend.text=element_text(size=10),
+#     panel.grid.major = element_line(colour="grey", size=0.05),
+#     axis.text.x = element_text(size = 6.5)
+#   ) +
+#   annotate("rect",
+#            xmin = study_dates[1], xmax = study_dates[2],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[3], xmax = study_dates[4],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   # annotate("rect",
+#   #          xmin = study_dates[5], xmax = study_dates[6],
+#   #          ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("rect",
+#            xmin = study_dates[7], xmax = study_dates[8],
+#            ymin = 0, ymax = upper_limit, alpha = .1) +
+#   annotate("text", x = as.Date("2020-05-01"), y = ylabel, label = "Lockdown 1 (LD 1)", size = timeline_size) +
+#   annotate("text", x = as.Date("2020-11-15"), y = ylabel, label = "LD 2", size = timeline_size) +
+#   annotate("text", x = as.Date("2021-01-30"), y = ylabel, label = "LD 3", size = timeline_size) 
+#   # annotate("text", x = as.Date("2020-12-22"), y = ylabel, label = "Christmas", size = timeline_size, angle = 0) 
+# # ggtitle("A")
+# 
+# emp_p
+# emp_adults_name <- "outputs/emp_adults_work.png"
+# ggsave(emp_p, filename = emp_adults_name, width = plot_width, height = 6)
 
 # Income work open ---------------------------------------------------------------
 

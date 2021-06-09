@@ -1,5 +1,8 @@
 # CoMix summary analysis for the United Kingdom
 
+
+ * This repository is unfinished, please return soon for the final version*
+ 
 ### Running code
 
 Will fill out this section
@@ -9,18 +12,19 @@ Will fill out this section
 ```
 install.packages("drat")
 drat:::add("epiforecasts")
-install.packages("covidregionaldata")
+install.packages("covidregionaldata") 
 
-install.packages(data.table)
-install.packages(ggplot2)
-install.packages(ggthemes)
-install.packages(lubridate)
-install.packages(patchwork)
+install.packages("data.table")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("lubridate")
+install.packages("mgcv")
+install.packages("patchwork")
 
-## If ggthemr is not available for your version of R, install using devtools instead:
-install.packages(ggthemr) 
-# install.packages("devtools")
-# devtools::install_github('Mikata-Project/ggthemr')
+# ## If ggthemr is not available for your version of R, install using devtools instead:
+# install.packages("ggthemr") 
+# # install.packages("devtools")
+# # devtools::install_github("Mikata-Project/ggthemr")
 ```
 
 #### Getting data

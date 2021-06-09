@@ -18,6 +18,7 @@ file_path <- file.path("data", paste("bs_proportions_2w.qs", sep = "_"))
 dt <- qs::qread(file_path)
 message(paste("read from:", file_path))
 dt[,participants := ifelse(has_non_hh_contacts == F, "All", "With non-household contacts")]
+dt <- dt[mid_date >= as.Date("2020-03-23") & mid_date <= as.Date("2021-03-26")]
 
 expand_dates <- c(as.Date("2020-03-15"), as.Date("2021-04-01"))
 
